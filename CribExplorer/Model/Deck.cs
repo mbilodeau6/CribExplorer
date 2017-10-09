@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace CribExplorer.Model
 {
-    public class Deck
+    public class Deck : IDeck
     {
         private IList<Card> cards = new List<Card>(52);
         private int nextCard = 0;
+
+        // TODO: Need to set seed and probably should be shared with larger app
+        private static Random rand = new Random(0);
 
         public Deck()
         {
@@ -17,7 +20,7 @@ namespace CribExplorer.Model
             {
                 foreach(CardFace face in Enum.GetValues(typeof(CardFace)))
                 {
-                    cards.Add(new Card() { Suit = suit, Face = face });
+                    cards.Add(new Card(suit, face));
                 }
             }
         }
@@ -28,6 +31,24 @@ namespace CribExplorer.Model
                 return null;
 
             return cards[nextCard++];
+        }
+
+        // Knuth Shuffle Algorithm from https://tekpool.wordpress.com/2006/10/06/shuffling-shuffle-a-deck-of-cards-knuth-shuffle/
+        public void Shuffle()
+        {
+            int j;
+            Card temp;
+
+            for (int i = cards.Count - 1; i >= 0; i--)
+            {
+                j = rand.Next(0, i);
+
+                temp = cards[i];
+                cards[i] = cards[j];
+                cards[j] = temp;
+            }
+
+            nextCard = 0;
         }
     }
 }

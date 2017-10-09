@@ -21,7 +21,7 @@ namespace CribExplorerTests
             
             foreach(Tuple<CardSuit, CardColor> test in tests)
             {
-                Assert.AreEqual(test.Item2, (new Card() { Suit = test.Item1 }).Color, string.Format("Testing {0}", test.Item1.ToString()));
+                Assert.AreEqual(test.Item2, (new Card(test.Item1, CardFace.Ace)).Color, string.Format("Testing {0}", test.Item1.ToString()));
             }
         }
 
@@ -47,8 +47,67 @@ namespace CribExplorerTests
 
             foreach (Tuple<CardFace, int> test in tests)
             {
-                Assert.AreEqual(test.Item2, (new Card() { Face = test.Item1 }).Value, string.Format("Testing {0}", test.Item1.ToString()));
+                Assert.AreEqual(test.Item2, (new Card(CardSuit.Heart, test.Item1)).Value, string.Format("Testing {0}", test.Item1.ToString()));
             }
+        }
+
+        [TestMethod]
+        public void Card_GetHashCode()
+        {
+            HashSet<int> hashCodes = new HashSet<int>();
+
+            foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
+            {
+                foreach (CardFace face in Enum.GetValues(typeof(CardFace)))
+                {
+                    hashCodes.Add((new Card(suit, face)).GetHashCode());
+                }
+            }
+
+            int minValue = int.MaxValue;
+            int maxValue = int.MinValue;
+
+            foreach(int hashCode in hashCodes)
+            {
+                minValue = Math.Min(hashCode, minValue);
+                maxValue = Math.Max(hashCode, maxValue);
+            }
+
+            Assert.AreEqual(52, hashCodes.Count, "Count of unique hash codes");
+            Assert.AreEqual(1, minValue, "Min hash code");
+            Assert.AreEqual(52, maxValue, "Max hash code");
+        }
+
+        [TestMethod]
+        public void Card_Equals()
+        {
+            Card card1 = new Card(CardSuit.Heart, CardFace.Ace);
+            Card card2 = new Card(CardSuit.Heart, CardFace.Two);
+            Card card3 = new Card(CardSuit.Diamond, CardFace.Ace);
+            Card card4 = new Card(CardSuit.Heart, CardFace.Ace);
+
+            Assert.IsTrue(card1.Equals(card4), "HA == HA");
+            Assert.IsFalse(card1.Equals(card2), "HA != H2");
+            Assert.IsFalse(card1.Equals(card3), "HA != DA");
+        }
+
+        [TestMethod]
+        public void Card_EqualityForKey()
+        {
+            HashSet<Card> uniqueCards = new HashSet<Card>();
+
+            Assert.AreEqual(0, uniqueCards.Count, "Before anything added.");
+
+            uniqueCards.Add(new Card(CardSuit.Heart, CardFace.Ace));
+            uniqueCards.Add(new Card(CardSuit.Heart, CardFace.Two));
+
+            Assert.AreEqual(2, uniqueCards.Count, "After adding two unique.");
+
+            uniqueCards.Add(new Card(CardSuit.Heart, CardFace.Ace));
+            Assert.AreEqual(2, uniqueCards.Count, "After adding card that already exists.");
+
+            uniqueCards.Add(new Card(CardSuit.Diamond, CardFace.Ace));
+            Assert.AreEqual(3, uniqueCards.Count, "After adding card of same face but different suit.");
         }
     }
 }

@@ -39,7 +39,22 @@ namespace CribExplorer.Model
 
     public class Card
     {
-        public CardSuit Suit { get; set; }
+        private int hashCode;
+
+        private int CalculateHashCode(Card card)
+        {
+            return (Enum.GetValues(typeof(CardFace)).Length * (int)card.Suit) + (int)card.Face;
+        }
+
+        public Card(CardSuit suit, CardFace face)
+        {
+            Suit = suit;
+            Face = face;
+
+            hashCode = CalculateHashCode(this);
+        }
+
+        public CardSuit Suit { get; private set; }
 
         public CardColor Color
         {
@@ -52,7 +67,7 @@ namespace CribExplorer.Model
             }
         }
 
-        public CardFace Face { get; set; }
+        public CardFace Face { get; private set; }
 
         public int Value
         {
@@ -68,6 +83,19 @@ namespace CribExplorer.Model
                         return (int)Face;
                 }
             }
+        }
+
+        public override bool Equals(Object obj)
+        {
+            if (obj == null || !(obj is Card))
+                return false;
+            else
+                return hashCode == CalculateHashCode((Card)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return hashCode;
         }
     }
 }

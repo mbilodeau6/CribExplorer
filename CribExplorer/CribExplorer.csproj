@@ -53,6 +53,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="PointCalculator.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -69,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Model\Card.cs" />
     <Compile Include="Model\Deck.cs" />
+    <Compile Include="Model\Hand.cs" />
     <Compile Include="Model\IDeck.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

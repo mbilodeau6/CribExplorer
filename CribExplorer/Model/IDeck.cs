@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CribExplorer.Model
 {
-    interface IDeck
+    public interface IDeck
     {
         Card GetNextCard();
         void Shuffle();

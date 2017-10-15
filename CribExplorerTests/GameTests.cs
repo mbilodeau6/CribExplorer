@@ -1,6 +1,7 @@
 ﻿using System;
 using CribExplorer.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace CribExplorerTests
 {
@@ -39,5 +40,18 @@ namespace CribExplorerTests
             Assert.AreEqual(2, game.Players.Count);
         }
 
+        [TestMethod]
+        public void Game_PlayerTurn_Initial()
+        {
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
+
+            mockDeck.SetupSequence(x => x.GetNextCard())
+                .Returns(new Card(CardSuit.Heart, CardFace.Ten))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Ace));
+
+            Game game = new Game(mockDeck.Object, 2);
+
+            Assert.AreEqual(1, game.PlayerTurn);
+        }
     }
 }

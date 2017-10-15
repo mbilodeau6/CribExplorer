@@ -9,6 +9,7 @@ namespace CribExplorer.Model
     public class Game
     {
         private IDeck deck = new Deck();
+        private int playerTurn;
 
         public Game(IDeck deck, int playerCount)
         {
@@ -23,12 +24,25 @@ namespace CribExplorer.Model
 
             for (int i = 0; i < playerCount; i++)
                 this.Players.Add(new Player());
+
+            // TODO: Add code to handle ties
+            if (deck.GetNextCard().Value < deck.GetNextCard().Value)
+                playerTurn = 0;
+            else
+                playerTurn = 1;
         }
 
         public int PlayerTurn
         {
-            get;
-            private set;
+            get
+            {
+                return playerTurn;
+            }
+
+            private set
+            {
+                playerTurn = value;
+            }
         }
 
         public Card Starter

@@ -25,11 +25,18 @@ namespace CribExplorer.Model
             for (int i = 0; i < playerCount; i++)
                 this.Players.Add(new Player());
 
-            // TODO: Add code to handle ties
-            if (deck.GetNextCard().Value < deck.GetNextCard().Value)
-                playerTurn = 0;
-            else
-                playerTurn = 1;
+            playerTurn = -1; 
+
+            while (playerTurn < 0)
+            {
+                int playerOneCardValue = deck.GetNextCard().Value;
+                int playerTwoCardValue = deck.GetNextCard().Value;
+
+                if (playerOneCardValue < playerTwoCardValue)
+                    playerTurn = 0;
+                else if (playerOneCardValue > playerTwoCardValue)
+                    playerTurn = 1;
+            }
         }
 
         public int PlayerTurn

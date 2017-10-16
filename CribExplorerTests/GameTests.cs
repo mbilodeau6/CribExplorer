@@ -53,5 +53,26 @@ namespace CribExplorerTests
 
             Assert.AreEqual(1, game.PlayerTurn);
         }
+
+        [TestMethod]
+        public void Game_PlayerTurn_HandleDraw()
+        {
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
+
+            mockDeck.SetupSequence(x => x.GetNextCard())
+                .Returns(new Card(CardSuit.Heart, CardFace.Ten))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Ten))
+                .Returns(new Card(CardSuit.Heart, CardFace.Eight))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Eight))
+                .Returns(new Card(CardSuit.Heart, CardFace.Ace))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Nine));
+
+            Game game = new Game(mockDeck.Object, 2);
+
+            Assert.AreEqual(0, game.PlayerTurn);
+
+            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(6));
+        }
+
     }
 }

@@ -9,5 +9,10 @@ namespace CribExplorer.Model
     public class Hand
     {
         public IList<Card> Cards;
+
+        public Hand()
+        {
+            Cards = new List<Card>();
+        }
     }
 }

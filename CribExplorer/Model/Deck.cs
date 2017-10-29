@@ -12,7 +12,7 @@ namespace CribExplorer.Model
         private int nextCard = 0;
 
         // TODO: Need to set seed and probably should be shared with larger app
-        private static Random rand = new Random(0);
+        private static Random rand = new Random(DateTime.Now.Second);
 
         public Deck()
         {

@@ -8,8 +8,9 @@ namespace CribExplorer.Model
 {
     public class Game
     {
+
         private IDeck deck = new Deck();
-        private int playerTurn;
+        private GameState gameState;
 
         public Game(IDeck deck, int playerCount)
         {
@@ -20,48 +21,58 @@ namespace CribExplorer.Model
                 throw new NotImplementedException("Current version only supports 2 players");
 
             this.deck = deck;
-            this.Players = new List<Player>(playerCount);
+            this.gameState = new GameState(playerCount);
 
-            for (int i = 0; i < playerCount; i++)
-                this.Players.Add(new Player());
-
-            playerTurn = -1; 
-
-            while (playerTurn < 0)
-            {
-                int playerOneCardValue = deck.GetNextCard().Value;
-                int playerTwoCardValue = deck.GetNextCard().Value;
-
-                if (playerOneCardValue < playerTwoCardValue)
-                    playerTurn = 0;
-                else if (playerOneCardValue > playerTwoCardValue)
-                    playerTurn = 1;
-            }
+            StartNew();
         }
 
         public int PlayerTurn
         {
             get
             {
-                return playerTurn;
-            }
-
-            private set
-            {
-                playerTurn = value;
+                return gameState.PlayerTurn;
             }
         }
 
         public Card Starter
         {
-            get;
-            private set;
+            get
+            {
+                return gameState.Starter;
+            }
         }
 
         public IList<Player> Players
         {
-            get;
-            private set;
+            get
+            {
+                return gameState.Players;
+            }
         }
+
+        public void StartNew()
+        {
+            deck.Shuffle();
+            gameState.PlayerTurn = -1; 
+
+            while (gameState.PlayerTurn < 0)
+            {
+                int playerOneCardValue = deck.GetNextCard().Value;
+                int playerTwoCardValue = deck.GetNextCard().Value;
+
+                if (playerOneCardValue < playerTwoCardValue)
+                    gameState.PlayerTurn = 0;
+                else if (playerOneCardValue > playerTwoCardValue)
+                    gameState.PlayerTurn = 1;
+            }
+
+            // TODO: Need to deal more than 4 cards for the crib
+            for (int i = 0; i < 4; i++)
+            {
+                gameState.Players[0].Hand.Cards.Add(deck.GetNextCard());
+                gameState.Players[1].Hand.Cards.Add(deck.GetNextCard());
+            }
+        }
+
     }
 }

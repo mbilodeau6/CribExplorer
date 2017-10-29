@@ -71,8 +71,9 @@ namespace CribExplorerTests
 
             Assert.AreEqual(0, game.PlayerTurn);
 
-            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(6));
+            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(14));
         }
+
 
     }
 }

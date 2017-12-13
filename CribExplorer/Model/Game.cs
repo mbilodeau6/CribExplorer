@@ -12,16 +12,16 @@ namespace CribExplorer.Model
         private IDeck deck = new Deck();
         private GameState gameState;
 
-        public Game(IDeck deck, int playerCount)
+        public Game(IDeck deck, IList<string> playerNames)
         {
             if (deck == null)
                 throw new ArgumentNullException("deck");
 
-            if (playerCount != 2)
+            if (playerNames.Count != 2)
                 throw new NotImplementedException("Current version only supports 2 players");
 
             this.deck = deck;
-            this.gameState = new GameState(playerCount);
+            this.gameState = new GameState(playerNames);
 
             StartNew();
         }
@@ -53,7 +53,6 @@ namespace CribExplorer.Model
         public void StartNew()
         {
             deck.Shuffle();
-            gameState.PlayerTurn = -1; 
 
             while (gameState.PlayerTurn < 0)
             {

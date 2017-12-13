@@ -8,22 +8,41 @@ namespace CribExplorer.Model
 {
     public class Player
     {
+        public Player(string name)
+        {
+            Name = name;
+            Hand = new Hand();
+            Discards = new Hand();
+            Score = 0;
+        }
+
         public string Name
         {
             get;
-            set;
+            private set;
         }
 
         public Hand Hand
         {
             get;
-            set;
+            private set;
+        }
+
+        public Hand Discards
+        {
+            get;
+            private set;
         }
 
         public int Score
         {
             get;
             set;
+        }
+
+        public void Discard(int index)
+        {
+
         }
     }
 }

@@ -86,9 +86,7 @@ namespace TestConsole
 
         static void Main(string[] args)
         {
-            Game game = new Game(new Deck(), 2);
-            game.Players[0].Name = "Player 1";
-            game.Players[1].Name = "Player 2";
+            Game game = new Game(new Deck(), new List<string>() {"Ann", "Bill"});
 
             Console.WriteLine();
             Console.WriteLine("NEW GAME");

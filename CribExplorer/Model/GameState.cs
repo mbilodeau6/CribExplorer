@@ -8,22 +8,27 @@ namespace CribExplorer.Model
 {
     public class GameState
     {
-        public void Reset(int playerCount)
+        private IList<string> PlayerNames;
+
+        public GameState(IList<string> playerNames)
         {
+            PlayerNames = playerNames;
+            Reset();
+        }
+
+        public void Reset()
+        {
+            Stage = GameEngine.GameStage.NewGame;
             PlayerTurn = -1;
             Starter = null;
             Players = new List<Player>();
+            Crib = new List<Card>();
+            Discards = new List<Card>();
 
-            for (int i = 0; i < playerCount; i++ )
+            foreach (string playerName in PlayerNames)
             {
-                Players.Add(new Player());
-                Players[i].Hand = new Hand();
+                Players.Add(new Player(playerName));
             }
-        }
-
-        public GameState(int playerCount)
-        {
-            Reset(playerCount);
         }
 
         public int PlayerTurn
@@ -39,6 +44,24 @@ namespace CribExplorer.Model
         }
 
         public IList<Player> Players
+        {
+            get;
+            private set;
+        }
+
+        public IList<Card> Crib
+        {
+            get;
+            private set;
+        }
+
+        public IList<Card> Discards
+        {
+            get;
+            private set;
+        }
+
+        public GameEngine.GameStage Stage
         {
             get;
             set;

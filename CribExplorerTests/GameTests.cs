@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CribExplorer.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -8,11 +9,14 @@ namespace CribExplorerTests
     [TestClass]
     public class GameTests
     {
+        private IList<string> testOnePlayer = new List<string>() { "PlayerA" };
+        private IList<string> testTwoPlayers = new List<string>() { "PlayerA", "PlayerB" };
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Game_Constructor_MissingDeck()
         {
-            Game game = new Game(null, 2);
+            Game game = new Game(null, testTwoPlayers);
         }
 
         [TestMethod]
@@ -20,7 +24,7 @@ namespace CribExplorerTests
         public void Game_Constructor_PlayerCountTooLow()
         {
             IDeck deck = new Deck();
-            Game game = new Game(deck, 1);
+            Game game = new Game(deck, testOnePlayer);
         }
 
         [TestMethod]
@@ -28,14 +32,14 @@ namespace CribExplorerTests
         public void Game_Constructor_PlayerCountTooHigh()
         {
             IDeck deck = new Deck();
-            Game game = new Game(deck, 1);
+            Game game = new Game(deck, testOnePlayer);
         }
 
         [TestMethod]
         public void Game_Constructor()
         {
             IDeck deck = new Deck();
-            Game game = new Game(deck, 2);
+            Game game = new Game(deck, testTwoPlayers);
 
             Assert.AreEqual(2, game.Players.Count);
         }
@@ -49,7 +53,7 @@ namespace CribExplorerTests
                 .Returns(new Card(CardSuit.Heart, CardFace.Ten))
                 .Returns(new Card(CardSuit.Diamond, CardFace.Ace));
 
-            Game game = new Game(mockDeck.Object, 2);
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
 
             Assert.AreEqual(1, game.PlayerTurn);
         }
@@ -67,7 +71,7 @@ namespace CribExplorerTests
                 .Returns(new Card(CardSuit.Heart, CardFace.Ace))
                 .Returns(new Card(CardSuit.Diamond, CardFace.Nine));
 
-            Game game = new Game(mockDeck.Object, 2);
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
 
             Assert.AreEqual(0, game.PlayerTurn);
 

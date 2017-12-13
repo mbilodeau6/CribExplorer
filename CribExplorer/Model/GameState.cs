@@ -23,7 +23,6 @@ namespace CribExplorer.Model
             Starter = null;
             Players = new List<Player>();
             Crib = new List<Card>();
-            Discards = new List<Card>();
 
             foreach (string playerName in PlayerNames)
             {
@@ -50,12 +49,6 @@ namespace CribExplorer.Model
         }
 
         public IList<Card> Crib
-        {
-            get;
-            private set;
-        }
-
-        public IList<Card> Discards
         {
             get;
             private set;

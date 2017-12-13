@@ -43,13 +43,13 @@ namespace CribExplorer.Model
             set;
         }
 
-        public void Discard(int index)
+        public void Discard(Card card)
         {
-            if (index < 0 || index >= Hand.Cards.Count)
-                throw new IndexOutOfRangeException("Invalid card index for player's hand.");
+            if (!Hand.Cards.Contains(card))
+                throw new ArgumentException("Requested card does not exist in the players hand.");
 
-            Discards.Cards.Add(Hand.Cards[index]);
-            Hand.Cards.RemoveAt(index);
+            Discards.Cards.Add(card);
+            Hand.Cards.Remove(card);
         }
     }
 }

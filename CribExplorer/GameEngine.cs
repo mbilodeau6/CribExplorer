@@ -52,7 +52,7 @@ namespace CribExplorer
 
             if (state.Stage == GameEngine.GameStage.EndSubRound)
             {
-                if (state.Discards.Count >= 4 * state.Players.Count)
+                if (GetDiscardCount() >= 4 * state.Players.Count)
                     return (state.Stage = GameEngine.GameStage.EndRound);
                 else
                     return (state.Stage = GameEngine.GameStage.NewSubRound);
@@ -77,6 +77,16 @@ namespace CribExplorer
 
             // No players have won yet
             return -1;
+        }
+
+        private int GetDiscardCount()
+        {
+            int count = 0;
+
+            foreach (Player player in state.Players)
+                count += player.Discards.Cards.Count;
+
+            return count;
         }
     }
 }

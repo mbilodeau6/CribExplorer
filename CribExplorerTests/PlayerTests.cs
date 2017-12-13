@@ -48,7 +48,7 @@ namespace CribExplorerTests
             Player player = CreateTestPlayer();
             Card selectedCard = player.Hand.Cards[1];
 
-            player.Discard(1);
+            player.Discard(selectedCard);
 
             Assert.AreEqual(2, player.Hand.Cards.Count, "Unexpected number of cards in hand.");
             Assert.AreEqual(1, player.Discards.Cards.Count, "Unexpected number of cards in discard pile.");
@@ -56,19 +56,11 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
-        public void Player_Discard_IndexTooLow()
+        [ExpectedException(typeof(ArgumentException))]
+        public void Player_Discard_InvalidCard()
         {
             Player player = CreateTestPlayer();
-            player.Discard(-1);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
-        public void Player_Discard_IndexTooHigh()
-        {
-            Player player = CreateTestPlayer();
-            player.Discard(3);
+            player.Discard(new Card(CardSuit.Spade, CardFace.Five));
         }
     }
 }

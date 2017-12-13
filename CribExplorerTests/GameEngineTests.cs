@@ -41,9 +41,9 @@ namespace CribExplorerTests
                 Stage = GameEngine.GameStage.EndRound
             };
 
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
+            AddTestCards(state);
+
             state.Players[0].Score = 119;
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
             state.Players[1].Score = 120;
 
             GameEngine game = new GameEngine(state);
@@ -76,8 +76,7 @@ namespace CribExplorerTests
                 Stage = GameEngine.GameStage.NewRound
             };
 
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
+            AddTestCards(state);
 
             GameEngine game = new GameEngine(state);
 
@@ -93,8 +92,7 @@ namespace CribExplorerTests
                 Stage = GameEngine.GameStage.CreateCrib
             };
 
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
+            AddTestCards(state);
 
             state.Crib.Add(new Card(CardSuit.Heart, CardFace.Three));
 
@@ -112,8 +110,7 @@ namespace CribExplorerTests
                 Stage = GameEngine.GameStage.StartRound
             };
 
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
+            AddTestCards(state);
 
             state.Crib.Add(new Card(CardSuit.Heart, CardFace.Three));
             state.Starter = new Card(CardSuit.Heart, CardFace.Four);
@@ -132,8 +129,7 @@ namespace CribExplorerTests
                 Stage = GameEngine.GameStage.EndSubRound
             };
 
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
+            AddTestCards(state);
 
             state.Crib.Add(new Card(CardSuit.Heart, CardFace.Three));
             state.Starter = new Card(CardSuit.Heart, CardFace.Four);
@@ -154,8 +150,7 @@ namespace CribExplorerTests
                 Stage = GameEngine.GameStage.NewSubRound
             };
 
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
+            AddTestCards(state);
 
             GameEngine game = new GameEngine(state);
 
@@ -165,14 +160,22 @@ namespace CribExplorerTests
         private void DiscardCards(GameState state, int discardCount)
         {
             int i = 0;
-            foreach (CardFace nextCardFace in Enum.GetValues(typeof(CardFace)))
+            foreach (Player player in state.Players)
             {
-                if (i >= discardCount)
-                    break;
+                IList<Card> cardsInHand = new List<Card>(player.Hand.Cards);
 
-                state.Discards.Add(new Card(CardSuit.Diamond, nextCardFace));
-                i++;
+                foreach (Card card in cardsInHand)
+                {
+                    if (i >= discardCount)
+                        return;
+
+                    player.Discard(card);
+                    i++;
+                }
             }
+
+            if (i < discardCount)
+                throw new ArgumentException(string.Format("Unable to discard {0} cards because only {1} cards exist.", discardCount, i));
         }
 
         [TestMethod]
@@ -184,8 +187,7 @@ namespace CribExplorerTests
                 Stage = GameEngine.GameStage.EndSubRound
             };
 
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
+            AddTestCards(state);
 
             // TODO: Get rid of magic number 4 (count of cards in hand)
             DiscardCards(state, state.Players.Count * 4);
@@ -204,14 +206,26 @@ namespace CribExplorerTests
                 Stage = GameEngine.GameStage.EndRound
             };
 
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
+            AddTestCards(state);
+
             state.Players[0].Score = 119;
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
             state.Players[1].Score = 121;
 
             GameEngine game = new GameEngine(state);
 
             Assert.AreEqual(GameEngine.GameStage.EndGame, game.GetNextStage());
+        }
+
+        private void AddTestCards(GameState state)
+        {
+            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
+            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
+            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Three));
+            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Four));
+            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Five));
+            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Six));
+            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Seven));
+            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Eight));
         }
     }
 }

@@ -10,6 +10,9 @@ namespace CribExplorer.Model
     {
         public Player(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException("name");
+
             Name = name;
             Hand = new Hand();
             Discards = new Hand();
@@ -42,7 +45,11 @@ namespace CribExplorer.Model
 
         public void Discard(int index)
         {
+            if (index < 0 || index >= Hand.Cards.Count)
+                throw new IndexOutOfRangeException("Invalid card index for player's hand.");
 
+            Discards.Cards.Add(Hand.Cards[index]);
+            Hand.Cards.RemoveAt(index);
         }
     }
 }

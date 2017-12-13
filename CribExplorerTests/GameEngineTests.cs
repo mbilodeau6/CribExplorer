@@ -10,6 +10,7 @@ namespace CribExplorerTests
     public class GameEngineTests
     {
         private IList<string> testPlayerNames = new List<String>() {"PlayerA", "PlayerB"};
+
         [TestMethod]
         public void GameEngine_GetNextStage_Initial()
         {

@@ -117,7 +117,7 @@ namespace CribExplorerTests
 
             GameEngine game = new GameEngine(state);
 
-            DiscardCards(state, game.GetMaxTotalHandCount() - 1);
+            TestHelpers.DiscardCards(state, game.GetMaxTotalHandCount() - 1);
 
             Assert.AreEqual(GameEngine.GameStage.NewPlay, game.GetNextStage());
         }
@@ -182,7 +182,7 @@ namespace CribExplorerTests
 
             GameEngine game = new GameEngine(state);
 
-            DiscardCards(state, game.GetMaxTotalHandCount());
+            TestHelpers.DiscardCards(state, game.GetMaxTotalHandCount());
 
             Assert.AreEqual(GameEngine.GameStage.EndPlay, game.GetNextStage());
         }
@@ -208,27 +208,6 @@ namespace CribExplorerTests
             Assert.AreEqual(GameEngine.GameStage.EndPlay, game.GetNextStage());
         }
 
-        private void DiscardCards(GameState state, int discardCount)
-        {
-            int i = 0;
-            foreach (Player player in state.Players)
-            {
-                IList<Card> cardsInHand = new List<Card>(player.Hand.Cards);
-
-                foreach (Card card in cardsInHand)
-                {
-                    if (i >= discardCount)
-                        return;
-
-                    player.Discard(card);
-                    i++;
-                }
-            }
-
-            if (i < discardCount)
-                throw new ArgumentException(string.Format("Unable to discard {0} cards because only {1} cards exist.", discardCount, i));
-        }
-
         [TestMethod]
         public void GameEngine_GetNextStage_EndRound()
         {
@@ -242,7 +221,7 @@ namespace CribExplorerTests
 
             GameEngine game = new GameEngine(state);
 
-            DiscardCards(state, game.GetMaxTotalHandCount());
+            TestHelpers.DiscardCards(state, game.GetMaxTotalHandCount());
 
             Assert.AreEqual(GameEngine.GameStage.EndRound, game.GetNextStage());
         }

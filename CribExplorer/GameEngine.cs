@@ -55,7 +55,7 @@ namespace CribExplorer
 
             if (state.Stage == GameEngine.GameStage.NewPlay)
             {
-                if (state.PlayCount == 31 || AllCardsPlayed() || NoCardsPlayable())
+                if (state.PlayCount == 31 || state.AllCardsPlayed() || state.NoCardsPlayable())
                     return (state.Stage = GameEngine.GameStage.EndPlay);
                 else
                     return GameEngine.GameStage.NewPlay;
@@ -63,7 +63,7 @@ namespace CribExplorer
 
             if (state.Stage == GameEngine.GameStage.EndPlay)
             {
-                if (AllCardsPlayed())
+                if (state.AllCardsPlayed())
                     return (state.Stage = GameEngine.GameStage.EndRound);
                 else
                     return (state.Stage = GameEngine.GameStage.NewPlay);
@@ -71,27 +71,13 @@ namespace CribExplorer
 
             if (state.Stage == GameEngine.GameStage.EndRound)
             {
-                if (GetWinningPlayer() >= 0)
+                if (state.GetWinningPlayer() >= 0)
                     return (state.Stage = GameEngine.GameStage.EndGame);
                 else
                     return (state.Stage = GameEngine.GameStage.NewRound);
             }
 
             throw new ApplicationException("Invalid state.");
-        }
-
-        private bool NoCardsPlayable()
-        {
-            foreach(Player player in state.Players)
-            {
-                foreach(Card card in player.Hand.Cards)
-                {
-                    if (state.PlayCount + card.Value <= 31)
-                        return false;
-                }
-            }
-
-            return true;
         }
 
         public bool PlayCard(int playerId, Card card)
@@ -104,26 +90,6 @@ namespace CribExplorer
 
             return true;
 
-        }
-
-        private int GetWinningPlayer()
-        {
-            for (int i = 0; i < state.Players.Count; i++ )
-                if (state.Players[i].Score >= WinningScore)
-                    return i;
-
-            // No players have won yet
-            return -1;
-        }
-
-        private bool AllCardsPlayed()
-        {
-            int count = 0;
-
-            foreach (Player player in state.Players)
-                count += player.Discards.Cards.Count;
-
-            return count >= GetMaxTotalHandCount();
         }
     }
 }

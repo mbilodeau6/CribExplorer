@@ -66,5 +66,39 @@ namespace CribExplorer.Model
             get;
             set;
         }
+
+        public int GetWinningPlayer()
+        {
+            for (int i = 0; i < Players.Count; i++)
+                if (Players[i].Score >= GameEngine.WinningScore)
+                    return i;
+
+            // No players have won yet
+            return -1;
+        }
+
+        public bool AllCardsPlayed()
+        {
+            int count = 0;
+
+            foreach (Player player in Players)
+                count += player.Discards.Cards.Count;
+
+            return count >= Players.Count * GameEngine.RequiredHandCardCount;
+        }
+
+        public bool NoCardsPlayable()
+        {
+            foreach (Player player in Players)
+            {
+                foreach (Card card in player.Hand.Cards)
+                {
+                    if (PlayCount + card.Value <= 31)
+                        return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

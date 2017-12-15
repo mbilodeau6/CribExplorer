@@ -15,18 +15,25 @@ namespace CribExplorer
             NewRound,
             CreateCrib,
             StartRound,
-            NewSubRound,
-            EndSubRound,
+            NewPlay,
+            EndPlay,
             EndRound,
             EndGame
         }
 
         private GameState state;
-        private const int WinningScore = 121;
 
+        public const int WinningScore = 121;
+        public const int RequiredHandCardCount = 4;
+        
         public GameEngine(GameState state)
         {
             this.state = state;
+        }
+
+        public int GetMaxTotalHandCount()
+        {
+            return RequiredHandCardCount * state.Players.Count;
         }
 
         public GameStage GetNextStage()
@@ -44,18 +51,22 @@ namespace CribExplorer
                 return (state.Stage = GameEngine.GameStage.StartRound);
 
             if (state.Stage == GameEngine.GameStage.StartRound && state.Starter != null)
-                return (state.Stage = GameEngine.GameStage.NewSubRound);
+                return (state.Stage = GameEngine.GameStage.NewPlay);
 
-            // TODO: Add conditions for when we move to EndSubRound
-            if (state.Stage == GameEngine.GameStage.NewSubRound)
-                return (state.Stage = GameEngine.GameStage.EndSubRound);
-
-            if (state.Stage == GameEngine.GameStage.EndSubRound)
+            if (state.Stage == GameEngine.GameStage.NewPlay)
             {
-                if (GetDiscardCount() >= 4 * state.Players.Count)
+                if (state.PlayCount == 31 || AllCardsPlayed() || NoCardsPlayable())
+                    return (state.Stage = GameEngine.GameStage.EndPlay);
+                else
+                    return GameEngine.GameStage.NewPlay;
+            }
+
+            if (state.Stage == GameEngine.GameStage.EndPlay)
+            {
+                if (AllCardsPlayed())
                     return (state.Stage = GameEngine.GameStage.EndRound);
                 else
-                    return (state.Stage = GameEngine.GameStage.NewSubRound);
+                    return (state.Stage = GameEngine.GameStage.NewPlay);
             }
 
             if (state.Stage == GameEngine.GameStage.EndRound)
@@ -69,6 +80,32 @@ namespace CribExplorer
             throw new ApplicationException("Invalid state.");
         }
 
+        private bool NoCardsPlayable()
+        {
+            foreach(Player player in state.Players)
+            {
+                foreach(Card card in player.Hand.Cards)
+                {
+                    if (state.PlayCount + card.Value <= 31)
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool PlayCard(int playerId, Card card)
+        {
+            if (state.PlayCount + card.Value > 31)
+                return false;
+
+            state.Players[playerId].Discard(card);
+            state.PlayCount += card.Value;
+
+            return true;
+
+        }
+
         private int GetWinningPlayer()
         {
             for (int i = 0; i < state.Players.Count; i++ )
@@ -79,14 +116,14 @@ namespace CribExplorer
             return -1;
         }
 
-        private int GetDiscardCount()
+        private bool AllCardsPlayed()
         {
             int count = 0;
 
             foreach (Player player in state.Players)
                 count += player.Discards.Cards.Count;
 
-            return count;
+            return count >= GetMaxTotalHandCount();
         }
     }
 }

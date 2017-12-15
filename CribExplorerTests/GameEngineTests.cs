@@ -102,12 +102,12 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        public void GameEngine_GetNextStage_NewSubRound_First()
+        public void GameEngine_GetNextStage_NewPlay_MoreCards()
         {
             GameState state = new GameState(testPlayerNames)
             {
                 PlayerTurn = 0,
-                Stage = GameEngine.GameStage.StartRound
+                Stage = GameEngine.GameStage.NewPlay
             };
 
             AddTestCards(state);
@@ -117,16 +117,18 @@ namespace CribExplorerTests
 
             GameEngine game = new GameEngine(state);
 
-            Assert.AreEqual(GameEngine.GameStage.NewSubRound, game.GetNextStage());
+            DiscardCards(state, game.GetMaxTotalHandCount() - 1);
+
+            Assert.AreEqual(GameEngine.GameStage.NewPlay, game.GetNextStage());
         }
 
         [TestMethod]
-        public void GameEngine_GetNextStage_NewSubRound_Continue()
+        public void GameEngine_GetNextStage_NewPlay_NotYet31()
         {
             GameState state = new GameState(testPlayerNames)
             {
                 PlayerTurn = 0,
-                Stage = GameEngine.GameStage.EndSubRound
+                Stage = GameEngine.GameStage.NewPlay
             };
 
             AddTestCards(state);
@@ -134,27 +136,76 @@ namespace CribExplorerTests
             state.Crib.Add(new Card(CardSuit.Heart, CardFace.Three));
             state.Starter = new Card(CardSuit.Heart, CardFace.Four);
 
-            DiscardCards(state, state.Players.Count * 4 - 1);
-
             GameEngine game = new GameEngine(state);
 
-            Assert.AreEqual(GameEngine.GameStage.NewSubRound, game.GetNextStage());
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.King));
+            game.PlayCard(1, new Card(CardSuit.Heart, CardFace.Queen));
+            game.PlayCard(1, new Card(CardSuit.Heart, CardFace.Jack));
+
+            Assert.AreEqual(GameEngine.GameStage.NewPlay, game.GetNextStage());
         }
 
         [TestMethod]
-        public void GameEngine_GetNextStage_EndSubRound()
+        public void GameEngine_GetNextStage_EndPlay_First31()
         {
             GameState state = new GameState(testPlayerNames)
             {
                 PlayerTurn = 0,
-                Stage = GameEngine.GameStage.NewSubRound
+                Stage = GameEngine.GameStage.NewPlay
             };
 
             AddTestCards(state);
 
             GameEngine game = new GameEngine(state);
 
-            Assert.AreEqual(GameEngine.GameStage.EndSubRound, game.GetNextStage());
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.King));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
+            game.PlayCard(1, new Card(CardSuit.Heart, CardFace.Queen));
+            game.PlayCard(1, new Card(CardSuit.Heart, CardFace.Jack));
+
+            Assert.AreEqual(GameEngine.GameStage.EndPlay, game.GetNextStage());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetNextStage_EndPlay_OutOfCards()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                PlayerTurn = 0,
+                Stage = GameEngine.GameStage.NewPlay
+            };
+
+            AddTestCards(state);
+
+            state.Crib.Add(new Card(CardSuit.Heart, CardFace.Three));
+            state.Starter = new Card(CardSuit.Heart, CardFace.Four);
+
+            GameEngine game = new GameEngine(state);
+
+            DiscardCards(state, game.GetMaxTotalHandCount());
+
+            Assert.AreEqual(GameEngine.GameStage.EndPlay, game.GetNextStage());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetNextStage_EndPlay_31NotPossible()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                PlayerTurn = 0,
+                Stage = GameEngine.GameStage.NewPlay
+            };
+
+            AddTestCards(state);
+
+            GameEngine game = new GameEngine(state);
+
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Nine));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
+            game.PlayCard(1, new Card(CardSuit.Heart, CardFace.Queen));
+            game.PlayCard(1, new Card(CardSuit.Heart, CardFace.Jack));
+
+            Assert.AreEqual(GameEngine.GameStage.EndPlay, game.GetNextStage());
         }
 
         private void DiscardCards(GameState state, int discardCount)
@@ -184,15 +235,14 @@ namespace CribExplorerTests
             GameState state = new GameState(testPlayerNames)
             {
                 PlayerTurn = 0,
-                Stage = GameEngine.GameStage.EndSubRound
+                Stage = GameEngine.GameStage.EndPlay
             };
 
             AddTestCards(state);
 
-            // TODO: Get rid of magic number 4 (count of cards in hand)
-            DiscardCards(state, state.Players.Count * 4);
-
             GameEngine game = new GameEngine(state);
+
+            DiscardCards(state, game.GetMaxTotalHandCount());
 
             Assert.AreEqual(GameEngine.GameStage.EndRound, game.GetNextStage());
         }
@@ -219,13 +269,13 @@ namespace CribExplorerTests
         private void AddTestCards(GameState state)
         {
             state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Three));
-            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Four));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Five));
+            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Five));
+            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Nine));
+            state.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.King));
+            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Two));
             state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Six));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Seven));
-            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Eight));
+            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Queen));
+            state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Jack));
         }
     }
 }

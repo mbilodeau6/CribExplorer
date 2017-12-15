@@ -23,6 +23,7 @@ namespace CribExplorer.Model
             Starter = null;
             Players = new List<Player>();
             Crib = new List<Card>();
+            PlayCount = 0;
 
             foreach (string playerName in PlayerNames)
             {
@@ -55,6 +56,12 @@ namespace CribExplorer.Model
         }
 
         public GameEngine.GameStage Stage
+        {
+            get;
+            set;
+        }
+
+        public int PlayCount
         {
             get;
             set;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,6 +51,14 @@ namespace CribExplorer.Model
             }
         }
 
+        public IList<Card> Crib
+        {
+            get
+            {
+                return gameState.Crib;
+            }
+        }
+
         public void StartNew()
         {
             deck.Shuffle();
@@ -71,6 +80,27 @@ namespace CribExplorer.Model
                 gameState.Players[0].Hand.Cards.Add(deck.GetNextCard());
                 gameState.Players[1].Hand.Cards.Add(deck.GetNextCard());
             }
+
+            // REVIEW: Should I introduce a method to cut for the Starter?
+            gameState.Starter = deck.GetNextCard();
+        }
+
+        public void AddToCrib(Card card)
+        {
+            Debug.Assert(gameState.Crib.Count <= GameEngine.RequiredHandCardCount);
+
+            gameState.Crib.Add(card);
+        }
+
+        public void PlayCard(int playerIndex, Card card)
+        {
+            if (playerIndex <= 0 || playerIndex >= gameState.Players.Count)
+                throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
+
+            if (!gameState.Players[playerIndex].Hand.Cards.Contains(card))
+                throw new ArgumentException(string.Format("Player {0} does not have the card requested", playerIndex));
+
+            gameState.Players[playerIndex].Discard(card);
         }
 
     }

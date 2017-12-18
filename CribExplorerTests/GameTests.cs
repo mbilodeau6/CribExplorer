@@ -58,6 +58,26 @@ namespace CribExplorerTests
             Assert.AreEqual(1, game.PlayerTurn);
         }
 
+        private Mock<IDeck> CreateMockDeck()
+        {
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
+
+            mockDeck.SetupSequence(x => x.GetNextCard())
+                .Returns(new Card(CardSuit.Heart, CardFace.Ten))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Two))
+                .Returns(new Card(CardSuit.Heart, CardFace.Eight))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Eight))
+                .Returns(new Card(CardSuit.Heart, CardFace.Ace))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Nine))
+                .Returns(new Card(CardSuit.Heart, CardFace.Jack))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Five))
+                .Returns(new Card(CardSuit.Heart, CardFace.Three))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Four))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Six));
+
+            return mockDeck;
+        }
+
         [TestMethod]
         public void Game_PlayerTurn_HandleDraw()
         {
@@ -75,9 +95,51 @@ namespace CribExplorerTests
 
             Assert.AreEqual(0, game.PlayerTurn);
 
-            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(14));
+            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(15));
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void Game_PlayCard_InvalidPlayerIdLow()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+
+            game.PlayCard(-1, new Card(CardSuit.Heart, CardFace.Ten));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void Game_PlayCard_InvalidPlayerIdHigh()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+
+            game.PlayCard(2, new Card(CardSuit.Heart, CardFace.Ten));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Game_PlayCard_WrongCard()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+
+            game.PlayCard(1, new Card(CardSuit.Heart, CardFace.Ten));
+        }
+
+        [TestMethod]
+        public void Game_PlayCard()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
+        }
 
     }
 }

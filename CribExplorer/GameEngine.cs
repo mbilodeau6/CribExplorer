@@ -36,6 +36,20 @@ namespace CribExplorer
             return RequiredHandCardCount * state.Players.Count;
         }
 
+        public int GetCardCountToDeal()
+        {
+            switch (state.Players.Count)
+            {
+                case 2:
+                    return 6;
+                case 3:
+                case 4:
+                    return 5;
+            }
+
+            throw new ApplicationException("Crib games require 2 to 4 players.");
+        }
+
         public GameStage GetNextStage()
         {
             if (state.Stage == GameEngine.GameStage.NewGame && state.PlayerTurn < 0)
@@ -47,15 +61,18 @@ namespace CribExplorer
             if (state.Stage == GameEngine.GameStage.NewRound && state.Players[0].Hand.Cards.Count > 0)
                 return (state.Stage = GameEngine.GameStage.CreateCrib);
 
-            if (state.Stage == GameEngine.GameStage.CreateCrib && state.Crib.Count > 0)
+            if (state.Stage == GameEngine.GameStage.CreateCrib && state.Crib.Count == GameEngine.RequiredHandCardCount)
                 return (state.Stage = GameEngine.GameStage.StartRound);
+
+            if (state.Stage == GameEngine.GameStage.CreateCrib)
+                return state.Stage;
 
             if (state.Stage == GameEngine.GameStage.StartRound && state.Starter != null)
                 return (state.Stage = GameEngine.GameStage.NewPlay);
 
             if (state.Stage == GameEngine.GameStage.NewPlay)
             {
-                if (state.PlayCount == 31 || state.AllCardsPlayed() || state.NoCardsPlayable())
+                if (state.SumOfPlayedCards == 31 || state.AllCardsPlayed() || !state.CardsPlayable())
                     return (state.Stage = GameEngine.GameStage.EndPlay);
                 else
                     return GameEngine.GameStage.NewPlay;
@@ -80,16 +97,26 @@ namespace CribExplorer
             throw new ApplicationException("Invalid state.");
         }
 
-        public bool PlayCard(int playerId, Card card)
+        public int GetNextPlayerIndex(int currentPlayer)
         {
-            if (state.PlayCount + card.Value > 31)
-                return false;
+            return (currentPlayer + 1) % state.Players.Count;
+        }
 
+        private void MoveToNextPlayer()
+        {
+            state.PlayerTurn = GetNextPlayerIndex(state.PlayerTurn);
+        }
+
+        public void PlayCard(int playerId, Card card)
+        {
             state.Players[playerId].Discard(card);
-            state.PlayCount += card.Value;
+            state.SumOfPlayedCards += card.Value;
+            MoveToNextPlayer();    
+        }
 
-            return true;
-
+        public void PlayerPass(int playerId)
+        {
+            MoveToNextPlayer();
         }
     }
 }

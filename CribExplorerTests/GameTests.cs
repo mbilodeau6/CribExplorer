@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CribExplorer.Model;
+using CribExplorer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -73,7 +74,12 @@ namespace CribExplorerTests
                 .Returns(new Card(CardSuit.Diamond, CardFace.Five))
                 .Returns(new Card(CardSuit.Heart, CardFace.Three))
                 .Returns(new Card(CardSuit.Diamond, CardFace.Four))
+                .Returns(new Card(CardSuit.Heart, CardFace.Four))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Seven))
+                .Returns(new Card(CardSuit.Heart, CardFace.Seven))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Queen))
                 .Returns(new Card(CardSuit.Diamond, CardFace.Six));
+
 
             return mockDeck;
         }
@@ -95,7 +101,7 @@ namespace CribExplorerTests
 
             Assert.AreEqual(0, game.PlayerTurn);
 
-            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(15));
+            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(19));
         }
 
         [TestMethod]
@@ -132,6 +138,17 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Game_PlayCard_NotPlayersTurn()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Eight));
+        }
+
+        [TestMethod]
         public void Game_PlayCard()
         {
             Mock<IDeck> mockDeck = CreateMockDeck();
@@ -141,5 +158,155 @@ namespace CribExplorerTests
             game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Game_PlayCard_NoValidCardsToPlay()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+
+            // Valid plays
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
+
+            // Invalid because this would exceed 31
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
+        }
+
+
+        [TestMethod]
+        public void Game_GetNextAction_FirstActionIsNoAction()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.NoAction, action.Action, "Unexpected action");
+            Assert.AreEqual(0, action.Players.Count, "Unexpected player count");
+        }
+
+        [TestMethod]
+        public void Game_GetNextAction_AllPlayersNeedToContributeToCrib()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.SelectCardForCrib, action.Action, "Unexpected action");
+            Assert.AreEqual(2, action.Players.Count, "Unexpected player count");
+        }
+
+        [TestMethod]
+        public void Game_GetNextAction_OnePlayerNeedsToContributeToCrib()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+
+            action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.SelectCardForCrib, action.Action, "Unexpected action");
+            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
+        }
+
+        [TestMethod]
+        public void Game_GetNextAction_PlayerNeedsToPlayCard()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+            
+            // TODO: Hack to cycle through NoAction states. Need to refactor.
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.PlayCard, action.Action, "Unexpected action");
+            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
+            Assert.AreEqual("PlayerB", action.Players[0], "Unexpected player name");
+        }
+
+        [TestMethod]
+        public void Game_GetNextAction_PlayerNeedsToPass()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+
+            // TODO: Hack to cycle through NoAction states. Need to refactor.
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
+
+            action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.PlayerMustPass, action.Action, "Unexpected action");
+            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
+            Assert.AreEqual("PlayerB", action.Players[0], "Unexpected player name");
+        }
+
+
+        [TestMethod]
+        public void Game_GetNextAction_NonDealerNeedsToCountHand()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            // TODO: Need to refactor so that I can directly set the state 
+            // needed for each test vs going through the actions.
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+
+            // TODO: Hack to cycle through NoAction states. Need to refactor.
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
+            game.PlayerPass(1);
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
+
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Seven));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Five));
+
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.CalculateScore, action.Action, "Unexpected action");
+            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
+            Assert.AreEqual("PlayerA", action.Players[0], "Unexpected player name");
+        }
     }
 }

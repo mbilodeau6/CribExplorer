@@ -43,13 +43,18 @@ namespace CribExplorer.Model
             set;
         }
 
-        public void Discard(Card card)
+        public void RemoveCardFromHand(Card card)
         {
             if (!Hand.Cards.Contains(card))
                 throw new ArgumentException("Requested card does not exist in the players hand.");
 
-            Discards.Cards.Add(card);
             Hand.Cards.Remove(card);
+        }
+        
+        public void Discard(Card card)
+        {
+            RemoveCardFromHand(card);
+            Discards.Cards.Add(card);
         }
     }
 }

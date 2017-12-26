@@ -12,6 +12,12 @@ namespace CribExplorer.Model
 
         public GameState(IList<string> playerNames)
         {
+            if (playerNames == null)
+                throw new ArgumentNullException("playerNames");
+
+            if (playerNames.Count < 2 || playerNames.Count > 4)
+                throw new ArgumentException("Crib requires 2 to 4 players.");
+
             PlayerNames = playerNames;
             Reset();
         }
@@ -23,7 +29,7 @@ namespace CribExplorer.Model
             Starter = null;
             Players = new List<Player>();
             Crib = new List<Card>();
-            PlayCount = 0;
+            SumOfPlayedCards = 0;
 
             foreach (string playerName in PlayerNames)
             {
@@ -32,6 +38,12 @@ namespace CribExplorer.Model
         }
 
         public int PlayerTurn
+        {
+            get;
+            set;
+        }
+
+        public int Dealer
         {
             get;
             set;
@@ -61,7 +73,7 @@ namespace CribExplorer.Model
             set;
         }
 
-        public int PlayCount
+        public int SumOfPlayedCards
         {
             get;
             set;
@@ -87,18 +99,27 @@ namespace CribExplorer.Model
             return count >= Players.Count * GameEngine.RequiredHandCardCount;
         }
 
-        public bool NoCardsPlayable()
+        public bool CardsPlayable()
         {
             foreach (Player player in Players)
             {
-                foreach (Card card in player.Hand.Cards)
-                {
-                    if (PlayCount + card.Value <= 31)
-                        return false;
-                }
+                if (CardsPlayable(player))
+                    return true;
             }
 
-            return true;
+            return false;
         }
+
+        public bool CardsPlayable(Player player)
+        {
+            foreach (Card card in player.Hand.Cards)
+            {
+                if (SumOfPlayedCards + card.Value <= 31)
+                    return true;
+            }
+
+            return false;
+        }
+
     }
 }

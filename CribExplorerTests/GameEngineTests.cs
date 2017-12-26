@@ -68,7 +68,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        public void GameEngine_GetNextStage_CreateCrib()
+        public void GameEngine_GetNextStage_CreateCrib_First()
         {
             GameState state = new GameState(testPlayerNames)
             {
@@ -77,6 +77,26 @@ namespace CribExplorerTests
             };
 
             AddTestCards(state);
+
+            GameEngine game = new GameEngine(state);
+
+            Assert.AreEqual(GameEngine.GameStage.CreateCrib, game.GetNextStage());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetNextStage_CreateCrib_Continue()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                PlayerTurn = 0,
+                Stage = GameEngine.GameStage.CreateCrib
+            };
+
+            AddTestCards(state);
+
+            state.Crib.Add(new Card(CardSuit.Heart, CardFace.Three));
+            state.Crib.Add(new Card(CardSuit.Heart, CardFace.Four));
+            state.Crib.Add(new Card(CardSuit.Heart, CardFace.Five));
 
             GameEngine game = new GameEngine(state);
 
@@ -95,6 +115,9 @@ namespace CribExplorerTests
             AddTestCards(state);
 
             state.Crib.Add(new Card(CardSuit.Heart, CardFace.Three));
+            state.Crib.Add(new Card(CardSuit.Heart, CardFace.Four));
+            state.Crib.Add(new Card(CardSuit.Heart, CardFace.Five));
+            state.Crib.Add(new Card(CardSuit.Heart, CardFace.Six));
 
             GameEngine game = new GameEngine(state);
 
@@ -255,6 +278,15 @@ namespace CribExplorerTests
             state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Six));
             state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Queen));
             state.Players[1].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Jack));
+        }
+
+        [TestMethod]
+        public void GameEngine_GetCountToDeal()
+        {
+            GameState state = new GameState(testPlayerNames);
+            GameEngine game = new GameEngine(state);
+
+            Assert.AreEqual(6, game.GetCardCountToDeal());
         }
     }
 }

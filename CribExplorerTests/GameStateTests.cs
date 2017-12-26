@@ -26,6 +26,35 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
+        public void GameState_Constructor()
+        {
+            GameState state = new GameState(new List<string>() { "A", "B", "C" });
+
+            Assert.AreEqual(3, state.Players.Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void GameState_Constructor_MissingPlayerNames()
+        {
+            GameState state = new GameState(null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void GameState_Constructor_TooFewPlayers()
+        {
+            GameState state = new GameState(new List<string>() {"A"});
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void GameState_Constructor_TooManyPlayers()
+        {
+            GameState state = new GameState(new List<string>() { "A", "B", "C", "D", "E" });
+        }
+
+        [TestMethod]
         public void GameState_GetWinningPlayer_None()
         {
             GameState state = CreateTestGameState();
@@ -69,29 +98,53 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        public void GameState_NoCardsPlayable_True()
+        public void GameState_CardsPlayable_AllPlayersFalse()
         {
             GameState state = CreateTestGameState();
 
-            state.PlayCount = 28;
+            state.SumOfPlayedCards = 28;
             state.Players[0].Discard(new Card(CardSuit.Club, CardFace.Two));
             state.Players[0].Discard(new Card(CardSuit.Club, CardFace.Ace));
 
             state.Players[1].Discard(new Card(CardSuit.Spade, CardFace.Three));
 
-            Assert.IsTrue(state.NoCardsPlayable());
+            Assert.IsFalse(state.CardsPlayable());
         }
 
         [TestMethod]
-        public void GameState_NoCardsPlayable_False()
+        public void GameState_CardsPlayable_AllPlayersTrue()
         {
             GameState state = CreateTestGameState();
 
-            state.PlayCount = 28;
+            state.SumOfPlayedCards = 28;
             state.Players[0].Discard(new Card(CardSuit.Club, CardFace.Two));
             state.Players[1].Discard(new Card(CardSuit.Spade, CardFace.Three));
 
-            Assert.IsFalse(state.NoCardsPlayable());
+            Assert.IsTrue(state.CardsPlayable());
         }
+
+        [TestMethod]
+        public void GameState_CardsPlayable_OnePlayerFalse()
+        {
+            GameState state = CreateTestGameState();
+
+            state.SumOfPlayedCards = 28;
+            state.Players[1].Discard(new Card(CardSuit.Spade, CardFace.Three));
+
+            Assert.IsFalse(state.CardsPlayable(state.Players[1]));
+        }
+
+        [TestMethod]
+        public void GameState_CardsPlayable_OnePlayerTrue()
+        {
+            GameState state = CreateTestGameState();
+
+            state.SumOfPlayedCards = 28;
+            state.Players[0].Discard(new Card(CardSuit.Club, CardFace.Two));
+            state.Players[0].Discard(new Card(CardSuit.Club, CardFace.Ace));
+
+            Assert.IsTrue(state.CardsPlayable(state.Players[1]));
+        }
+
     }
 }

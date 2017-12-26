@@ -62,5 +62,25 @@ namespace CribExplorerTests
             Player player = CreateTestPlayer();
             player.Discard(new Card(CardSuit.Spade, CardFace.Five));
         }
+
+        [TestMethod]
+        public void Player_RemoveCardFromHand()
+        {
+            Player player = CreateTestPlayer();
+            Card selectedCard = player.Hand.Cards[1];
+
+            player.RemoveCardFromHand(selectedCard);
+
+            Assert.AreEqual(2, player.Hand.Cards.Count, "Unexpected number of cards in hand.");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Player_RemoveCardFromHand_InvalidCard()
+        {
+            Player player = CreateTestPlayer();
+            player.RemoveCardFromHand(new Card(CardSuit.Spade, CardFace.Five));
+        }
+
     }
 }

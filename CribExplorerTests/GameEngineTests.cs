@@ -231,13 +231,73 @@ namespace CribExplorerTests
             Assert.AreEqual(GameEngine.GameStage.EndPlay, game.GetNextStage());
         }
 
+
+        [TestMethod]
+        public void GameEngine_GetNextStage_ScoreHands_First()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                PlayerTurn = 0,
+                Stage = GameEngine.GameStage.EndPlay,
+                Dealer = 0
+            };
+
+            AddTestCards(state);
+
+            GameEngine game = new GameEngine(state);
+
+            TestHelpers.DiscardCards(state, game.GetMaxTotalHandCount());
+
+            Assert.AreEqual(GameEngine.GameStage.ScoreHands, game.GetNextStage());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetNextStage_ScoreHands_Continue()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                PlayerTurn = 1,
+                Stage = GameEngine.GameStage.ScoreHands,
+                Dealer = 0
+            };
+
+            AddTestCards(state);
+
+            GameEngine game = new GameEngine(state);
+
+            TestHelpers.DiscardCards(state, game.GetMaxTotalHandCount());
+
+            Assert.AreEqual(GameEngine.GameStage.ScoreHands, game.GetNextStage());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetNextStage_ScoreCrib()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                PlayerTurn = 1,
+                Stage = GameEngine.GameStage.ScoreHands,
+                Dealer = 1,
+                AllHandScoresProvided = true
+            };
+
+            AddTestCards(state);
+
+            GameEngine game = new GameEngine(state);
+
+            TestHelpers.DiscardCards(state, game.GetMaxTotalHandCount());
+
+            Assert.AreEqual(GameEngine.GameStage.ScoreCrib, game.GetNextStage());
+        }
+
         [TestMethod]
         public void GameEngine_GetNextStage_EndRound()
         {
             GameState state = new GameState(testPlayerNames)
             {
-                PlayerTurn = 0,
-                Stage = GameEngine.GameStage.EndPlay
+                PlayerTurn = 1,
+                Stage = GameEngine.GameStage.ScoreCrib,
+                Dealer = 1
             };
 
             AddTestCards(state);

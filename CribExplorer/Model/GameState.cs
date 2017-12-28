@@ -30,6 +30,7 @@ namespace CribExplorer.Model
             Players = new List<Player>();
             Crib = new List<Card>();
             SumOfPlayedCards = 0;
+            AllHandScoresProvided = false;
 
             foreach (string playerName in PlayerNames)
             {
@@ -74,6 +75,12 @@ namespace CribExplorer.Model
         }
 
         public int SumOfPlayedCards
+        {
+            get;
+            set;
+        }
+
+        public bool AllHandScoresProvided
         {
             get;
             set;

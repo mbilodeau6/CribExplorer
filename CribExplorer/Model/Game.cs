@@ -9,6 +9,8 @@ namespace CribExplorer.Model
 {
     public class Game
     {
+        // TODO: Need to clarify distinction between Game and GameEngine.
+        // Do I really need both? If yes, what goes where?
 
         private IDeck deck = new Deck();
         private GameState gameState;
@@ -136,6 +138,32 @@ namespace CribExplorer.Model
             gameEngine.PlayCard(playerIndex, card);
         }
 
+        public bool IsProvidedScoreCorrectForHand(int playerIndex, int score)
+        {
+            if (playerIndex < 0 || playerIndex >= gameState.Players.Count)
+                throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
+
+            if (gameState.PlayerTurn != playerIndex)
+                throw new ArgumentException(string.Format("It isn't Player {0}'s turn.", playerIndex));
+
+            // TODO: Need to figure out what we want to do if the incorrect score is 
+            // provided. Probably a configurable option where they are: a) just 
+            // notified; b) lose points; c) if another player challenges, the 
+            // challenging player gets the difference.
+
+            return gameEngine.IsProvidedScoreCorrectForHand(playerIndex, score);
+        }
+
+        public bool IsProvidedScoreCorrectForCrib(int score)
+        {
+            // TODO: Need to figure out what we want to do if the incorrect score is 
+            // provided. Probably a configurable option where they are: a) just 
+            // notified; b) lose points; c) if another player challenges, the 
+            // challenging player gets the difference.
+
+            return gameEngine.IsProvidedScoreCorrectForCrib(score);
+        }
+
         public PlayerAction GetNextAction()
         {
             PlayerAction action = new PlayerAction();
@@ -168,30 +196,19 @@ namespace CribExplorer.Model
                 case GameEngine.GameStage.EndPlay:
                     gameState.SumOfPlayedCards = 0;
                     break;
+                case GameEngine.GameStage.ScoreHands:
+                    action.Players.Add(gameState.Players[gameState.PlayerTurn].Name);
+                    action.Action = PlayerAction.ActionType.CalculateScore;
+                    break;
+                case GameEngine.GameStage.ScoreCrib:
+                    action.Players.Add(gameState.Players[gameState.Dealer].Name);
+                    action.Action = PlayerAction.ActionType.CalculateCribScore;
+                    break;
                 case GameEngine.GameStage.EndRound:
-                    if (currentTurnForScoring == gameState.Dealer)
-                    {
-                        // All hands have been counted. Count the crib.
-                        action.Players.Add(gameState.Players[currentTurnForScoring].Name);
-                        currentTurnForScoring = -1;
-                        action.Action = PlayerAction.ActionType.CalculateCribScore;
-
-                        // Switch Dealer
-                        gameState.Dealer = gameEngine.GetNextPlayerIndex(gameState.Dealer);
-                    }
-                    else
-                    {
-                        if (currentTurnForScoring < 0)
-                            // Player left of dealer starts counting
-                            currentTurnForScoring = gameEngine.GetNextPlayerIndex(gameState.Dealer);
-                        else
-                            // Continue counting to the left
-                            currentTurnForScoring = gameEngine.GetNextPlayerIndex(currentTurnForScoring);
-
-                        action.Action = PlayerAction.ActionType.CalculateScore;
-                        action.Players.Add(gameState.Players[currentTurnForScoring].Name);
-                    }
-
+                    gameState.Dealer = gameEngine.GetNextPlayerIndex(gameState.Dealer);
+                    gameState.PlayerTurn = gameState.Dealer;
+                    action.Players.Add(gameState.Players[gameState.Dealer].Name);
+                    action.Action = PlayerAction.ActionType.Deal;
                     break;
                 default:
                     action.Action = PlayerAction.ActionType.NoAction;

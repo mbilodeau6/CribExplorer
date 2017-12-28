@@ -308,5 +308,143 @@ namespace CribExplorerTests
             Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
             Assert.AreEqual("PlayerA", action.Players[0], "Unexpected player name");
         }
+
+        [TestMethod]
+        public void Game_GetNextAction_DealerNeedsToCountHand()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            // TODO: Need to refactor so that I can directly set the state 
+            // needed for each test vs going through the actions.
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+
+            // TODO: Hack to cycle through NoAction states. Need to refactor.
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
+            game.PlayerPass(1);
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
+
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Seven));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Five));
+
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+            game.IsProvidedScoreCorrectForHand(0, 10);
+
+            action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.CalculateScore, action.Action, "Unexpected action");
+            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
+            Assert.AreEqual("PlayerB", action.Players[0], "Unexpected player name");
+        }
+
+        [TestMethod]
+        public void Game_GetNextAction_DealerNeedsToCountCrib()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            // TODO: Need to refactor so that I can directly set the state 
+            // needed for each test vs going through the actions.
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+
+            // TODO: Hack to cycle through NoAction states. Need to refactor.
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
+            game.PlayerPass(1);
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
+
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Seven));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Five));
+
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+            game.IsProvidedScoreCorrectForHand(0, 10);
+
+            action = game.GetNextAction();
+            game.IsProvidedScoreCorrectForHand(1, 10);
+
+            action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.CalculateCribScore, action.Action, "Unexpected action");
+            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
+            Assert.AreEqual("PlayerB", action.Players[0], "Unexpected player name");
+        }
+
+        [TestMethod]
+        public void Game_GetNextAction_NextDealer()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            // TODO: Need to refactor so that I can directly set the state 
+            // needed for each test vs going through the actions.
+            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            PlayerAction action = game.GetNextAction();
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
+            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
+            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+
+            // TODO: Hack to cycle through NoAction states. Need to refactor.
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
+            game.PlayerPass(1);
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
+
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
+            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Seven));
+            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Five));
+
+            action = game.GetNextAction();
+            action = game.GetNextAction();
+            game.IsProvidedScoreCorrectForHand(0, 10);
+
+            action = game.GetNextAction();
+            game.IsProvidedScoreCorrectForHand(1, 10);
+
+            action = game.GetNextAction();
+            game.IsProvidedScoreCorrectForCrib(10);
+
+            action = game.GetNextAction();
+
+            Assert.AreEqual(PlayerAction.ActionType.Deal, action.Action, "Unexpected action");
+            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
+            Assert.AreEqual("PlayerA", action.Players[0], "Unexpected player name");
+        }
     }
 }

@@ -17,6 +17,8 @@ namespace CribExplorer
             StartRound,
             NewPlay,
             EndPlay,
+            ScoreHands,
+            ScoreCrib,
             EndRound,
             EndGame
         }
@@ -52,6 +54,9 @@ namespace CribExplorer
 
         public GameStage GetNextStage()
         {
+            // TODO: Need to add GameWon stage that can be hit on any stage where
+            // points are earned.
+
             if (state.Stage == GameEngine.GameStage.NewGame && state.PlayerTurn < 0)
                 return state.Stage;
 
@@ -75,16 +80,34 @@ namespace CribExplorer
                 if (state.SumOfPlayedCards == 31 || state.AllCardsPlayed() || !state.CardsPlayable())
                     return (state.Stage = GameEngine.GameStage.EndPlay);
                 else
-                    return GameEngine.GameStage.NewPlay;
+                    return state.Stage;
             }
 
             if (state.Stage == GameEngine.GameStage.EndPlay)
             {
                 if (state.AllCardsPlayed())
-                    return (state.Stage = GameEngine.GameStage.EndRound);
+                {
+                    state.AllHandScoresProvided = false;
+                    state.PlayerTurn = GetNextPlayerIndex(state.Dealer);
+                    return (state.Stage = GameEngine.GameStage.ScoreHands);
+                }
                 else
                     return (state.Stage = GameEngine.GameStage.NewPlay);
             }
+
+            if (state.Stage == GameStage.ScoreHands)
+            {
+                if (state.AllHandScoresProvided)
+                    return (state.Stage = GameEngine.GameStage.ScoreCrib);
+
+                if (state.Dealer == state.PlayerTurn)
+                    state.AllHandScoresProvided = true;
+
+                return state.Stage;
+            }
+
+            if (state.Stage == GameStage.ScoreCrib)
+                return (state.Stage = GameEngine.GameStage.EndRound);
 
             if (state.Stage == GameEngine.GameStage.EndRound)
             {
@@ -118,5 +141,20 @@ namespace CribExplorer
         {
             MoveToNextPlayer();
         }
+
+        public bool IsProvidedScoreCorrectForHand(int playerId, int score)
+        {
+            // TODO: Add logic to check score.
+
+            MoveToNextPlayer();
+            return true;
+        }
+
+        public bool IsProvidedScoreCorrectForCrib(int score)
+        {
+            // TODO: Add logic to check score.
+            return true;
+        }
+
     }
 }

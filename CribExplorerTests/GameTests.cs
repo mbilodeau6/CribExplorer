@@ -80,7 +80,6 @@ namespace CribExplorerTests
                 .Returns(new Card(CardSuit.Diamond, CardFace.Queen))
                 .Returns(new Card(CardSuit.Diamond, CardFace.Six));
 
-
             return mockDeck;
         }
 
@@ -272,37 +271,26 @@ namespace CribExplorerTests
         [TestMethod]
         public void Game_GetNextAction_NonDealerNeedsToCountHand()
         {
-            Mock<IDeck> mockDeck = CreateMockDeck();
+            // Set up state where all cards are played and therefore the round is over.
+            GameState startingState = new GameState(testTwoPlayers)
+            {
+                Stage = GameEngine.GameStage.EndPlay,
+                Dealer = 1,
+                PlayerTurn = 0,
+            };
 
-            // TODO: Need to refactor so that I can directly set the state 
-            // needed for each test vs going through the actions.
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            for (int i=0; i < GameEngine.RequiredHandCardCount; i++)
+            {
+                startingState.Players[0].Discards.Cards.Add(null);
+                startingState.Players[1].Discards.Cards.Add(null);
+            }
+
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers, startingState);
+
+            // Verify the system knows it is time to calculate scores.
             PlayerAction action = game.GetNextAction();
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
-
-            // TODO: Hack to cycle through NoAction states. Need to refactor.
-            action = game.GetNextAction();
-            action = game.GetNextAction();
-
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
-            game.PlayerPass(1);
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
-
-            action = game.GetNextAction();
-            action = game.GetNextAction();
-
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Seven));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Five));
-
-            action = game.GetNextAction();
-            action = game.GetNextAction();
 
             Assert.AreEqual(PlayerAction.ActionType.CalculateScore, action.Action, "Unexpected action");
             Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
@@ -312,40 +300,24 @@ namespace CribExplorerTests
         [TestMethod]
         public void Game_GetNextAction_DealerNeedsToCountHand()
         {
-            Mock<IDeck> mockDeck = CreateMockDeck();
+            // Set up state where round is done and non-dealer (PlayerA) has provided 
+            // their score.
+            GameState startingState = new GameState(testTwoPlayers)
+            {
+                Stage = GameEngine.GameStage.ScoreHands,
+                Dealer = 1,
+                PlayerTurn = 0
+            };
 
-            // TODO: Need to refactor so that I can directly set the state 
-            // needed for each test vs going through the actions.
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
-            PlayerAction action = game.GetNextAction();
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
 
-            // TODO: Hack to cycle through NoAction states. Need to refactor.
-            action = game.GetNextAction();
-            action = game.GetNextAction();
+            Game game = new Game(mockDeck.Object, testTwoPlayers, startingState);
 
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
-            game.PlayerPass(1);
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
-
-            action = game.GetNextAction();
-            action = game.GetNextAction();
-
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Seven));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Five));
-
-            action = game.GetNextAction();
-            action = game.GetNextAction();
             game.IsProvidedScoreCorrectForHand(0, 10);
 
-            action = game.GetNextAction();
+            // Verify the system knows the dealer (PlayerB) still has to provide 
+            // a score.
+            PlayerAction action = game.GetNextAction();
 
             Assert.AreEqual(PlayerAction.ActionType.CalculateScore, action.Action, "Unexpected action");
             Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
@@ -355,40 +327,25 @@ namespace CribExplorerTests
         [TestMethod]
         public void Game_GetNextAction_DealerNeedsToCountCrib()
         {
-            Mock<IDeck> mockDeck = CreateMockDeck();
+            // Set up state so that PlayerB is dealer and game at stage
+            // where dealer needs to score their hand.
+            GameState startingState = new GameState(testTwoPlayers)
+            {
+                Stage = GameEngine.GameStage.ScoreHands,
+                Dealer = 1,
+                PlayerTurn = 0,
+                AllHandScoresProvided = false
+            };
 
-            // TODO: Need to refactor so that I can directly set the state 
-            // needed for each test vs going through the actions.
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
-            PlayerAction action = game.GetNextAction();
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
 
-            // TODO: Hack to cycle through NoAction states. Need to refactor.
-            action = game.GetNextAction();
-            action = game.GetNextAction();
+            Game game = new Game(mockDeck.Object, testTwoPlayers, startingState);
 
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
-            game.PlayerPass(1);
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
-
-            action = game.GetNextAction();
-            action = game.GetNextAction();
-
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Seven));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Five));
-
-            action = game.GetNextAction();
-            action = game.GetNextAction();
             game.IsProvidedScoreCorrectForHand(0, 10);
+            PlayerAction action = game.GetNextAction();
 
-            action = game.GetNextAction();
+            // Verify that when the dealer (PlayerB) scores their hand the
+            // game moves to the stage where the crib is calculated.
             game.IsProvidedScoreCorrectForHand(1, 10);
 
             action = game.GetNextAction();
@@ -401,46 +358,24 @@ namespace CribExplorerTests
         [TestMethod]
         public void Game_GetNextAction_NextDealer()
         {
-            Mock<IDeck> mockDeck = CreateMockDeck();
+            // Set up state so that PlayerB is dealer and game at stage
+            // where dealer needs to score the crib.
+            GameState startingState = new GameState(testTwoPlayers)
+            {
+                Stage = GameEngine.GameStage.ScoreCrib,
+                Dealer = 1,
+                PlayerTurn = 0
+            };
 
-            // TODO: Need to refactor so that I can directly set the state 
-            // needed for each test vs going through the actions.
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
-            PlayerAction action = game.GetNextAction();
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
 
-            // TODO: Hack to cycle through NoAction states. Need to refactor.
-            action = game.GetNextAction();
-            action = game.GetNextAction();
+            Game game = new Game(mockDeck.Object, testTwoPlayers, startingState);
 
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
-            game.PlayerPass(1);
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Ace));
-
-            action = game.GetNextAction();
-            action = game.GetNextAction();
-
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Four));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Seven));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Five));
-
-            action = game.GetNextAction();
-            action = game.GetNextAction();
-            game.IsProvidedScoreCorrectForHand(0, 10);
-
-            action = game.GetNextAction();
-            game.IsProvidedScoreCorrectForHand(1, 10);
-
-            action = game.GetNextAction();
+            // Verify that when PlayerB provides crib score a new round 
+            // is started with PlayerA as the dealer.
             game.IsProvidedScoreCorrectForCrib(10);
 
-            action = game.GetNextAction();
+            PlayerAction action = game.GetNextAction();
 
             Assert.AreEqual(PlayerAction.ActionType.Deal, action.Action, "Unexpected action");
             Assert.AreEqual(1, action.Players.Count, "Unexpected player count");

@@ -144,7 +144,7 @@ namespace CribExplorer
 
         public bool IsProvidedScoreCorrectForHand(int playerId, int score)
         {
-            // TODO: Add logic to check score.
+            // TODO: Add logic and tests to check score.
 
             MoveToNextPlayer();
             return true;
@@ -152,7 +152,7 @@ namespace CribExplorer
 
         public bool IsProvidedScoreCorrectForCrib(int score)
         {
-            // TODO: Add logic to check score.
+            // TODO: Add logic and tests to check score.
             return true;
         }
 

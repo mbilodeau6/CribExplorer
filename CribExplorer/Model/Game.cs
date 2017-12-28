@@ -16,7 +16,15 @@ namespace CribExplorer.Model
         private GameState gameState;
         private GameEngine gameEngine;
 
-        public Game(IDeck deck, IList<string> playerNames)
+        /// <summary>
+        /// Called to start a new game. By default, the gameState will be determined
+        /// by the drawing of cards (i.e. a real game) although caller has the option
+        /// to specify a starting state.
+        /// </summary>
+        /// <param name="deck">The deck to draw from.</param>
+        /// <param name="playerNames">Players participating the in the game.</param>
+        /// <param name="gameState">Optional starting state</param>
+        public Game(IDeck deck, IList<string> playerNames, GameState gameState = null)
         {
             if (deck == null)
                 throw new ArgumentNullException("deck");
@@ -25,10 +33,13 @@ namespace CribExplorer.Model
                 throw new NotImplementedException("Current version only supports 2 players");
 
             this.deck = deck;
-            this.gameState = new GameState(playerNames);
+            this.gameState = gameState == null ? new GameState(playerNames) : gameState;
             this.gameEngine = new GameEngine(this.gameState);
 
-            StartNew();
+            if (gameState == null)
+            {
+                StartNew();
+            }
         }
 
         public int PlayerTurn

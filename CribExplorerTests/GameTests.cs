@@ -221,18 +221,22 @@ namespace CribExplorerTests
         [TestMethod]
         public void Game_GetNextAction_PlayerNeedsToPlayCard()
         {
-            Mock<IDeck> mockDeck = CreateMockDeck();
+            // Set up state where current player has a card that is playable.
+            GameState startingState = new GameState(testTwoPlayers)
+            {
+                Stage = GameEngine.GameStage.NewPlay,
+                PlayerTurn = 1,
+                SumOfPlayedCards = 30
+            };
 
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            startingState.Players[1].Hand.Cards.Add(new Card(CardSuit.Diamond, CardFace.Two));
+            startingState.Players[1].Hand.Cards.Add(new Card(CardSuit.Diamond, CardFace.Ace));
+
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers, startingState);
+
             PlayerAction action = game.GetNextAction();
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
-            
-            // TODO: Hack to cycle through NoAction states. Need to refactor.
-            action = game.GetNextAction();
-            action = game.GetNextAction();
 
             Assert.AreEqual(PlayerAction.ActionType.PlayCard, action.Action, "Unexpected action");
             Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
@@ -242,31 +246,28 @@ namespace CribExplorerTests
         [TestMethod]
         public void Game_GetNextAction_PlayerNeedsToPass()
         {
-            Mock<IDeck> mockDeck = CreateMockDeck();
+            // Set up state where current player doesn't have a card that is playable.
+            GameState startingState = new GameState(testTwoPlayers)
+            {
+                Stage = GameEngine.GameStage.NewPlay,
+                PlayerTurn = 1,
+                SumOfPlayedCards = 30
+            };
 
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
+            // Player 0 has a playable card but it is player 1's turn.
+            startingState.Players[0].Hand.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
+            startingState.Players[1].Hand.Cards.Add(new Card(CardSuit.Diamond, CardFace.Two));
+
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
+
+            Game game = new Game(mockDeck.Object, testTwoPlayers, startingState);
+
             PlayerAction action = game.GetNextAction();
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
-
-            // TODO: Hack to cycle through NoAction states. Need to refactor.
-            action = game.GetNextAction();
-            action = game.GetNextAction();
-
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Nine));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Jack));
-            game.PlayCard(1, new Card(CardSuit.Diamond, CardFace.Seven));
-            game.PlayCard(0, new Card(CardSuit.Heart, CardFace.Four));
-
-            action = game.GetNextAction();
 
             Assert.AreEqual(PlayerAction.ActionType.PlayerMustPass, action.Action, "Unexpected action");
             Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
             Assert.AreEqual("PlayerB", action.Players[0], "Unexpected player name");
         }
-
 
         [TestMethod]
         public void Game_GetNextAction_NonDealerNeedsToCountHand()

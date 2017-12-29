@@ -24,13 +24,63 @@ namespace CribExplorer
         }
 
         private GameState state;
+        private IDeck deck;
 
         public const int WinningScore = 121;
         public const int RequiredHandCardCount = 4;
-        
-        public GameEngine(GameState state)
+
+        public GameEngine(IDeck deck, IList<string> playerNames)
         {
-            this.state = state;
+            if (deck == null)
+                throw new ArgumentNullException("deck");
+
+            if (playerNames == null)
+                throw new ArgumentNullException("playerNames");
+
+            if (playerNames.Count != 2)
+                throw new IndexOutOfRangeException("Current version only supports 2 players");
+
+            this.deck = deck;
+            this.state = new GameState(playerNames);
+
+            StartNew();
+        }
+
+        public GameEngine(GameState gameState)
+        {
+            if (gameState == null)
+                throw new ArgumentNullException("gameState");
+
+            this.state = gameState;
+        }
+
+        private void StartNew()
+        {
+            deck.Shuffle();
+
+            while (state.PlayerTurn < 0)
+            {
+                int playerOneCardValue = deck.GetNextCard().Value;
+                int playerTwoCardValue = deck.GetNextCard().Value;
+
+                // TODO: Need to handle more than 2 players
+                if (playerOneCardValue < playerTwoCardValue)
+                    state.PlayerTurn = 0;
+                else if (playerOneCardValue > playerTwoCardValue)
+                    state.PlayerTurn = 1;
+
+                state.Dealer = state.PlayerTurn;
+            }
+
+            for (int i = 0; i < GetCardCountToDeal(); i++)
+            {
+                // TODO: Need to handle more than 2 players
+                state.Players[0].Hand.Cards.Add(deck.GetNextCard());
+                state.Players[1].Hand.Cards.Add(deck.GetNextCard());
+            }
+
+            // REVIEW: Should I introduce a method to cut for the Starter?
+            state.Starter = deck.GetNextCard();
         }
 
         public int GetMaxTotalHandCount()
@@ -50,6 +100,41 @@ namespace CribExplorer
             }
 
             throw new ApplicationException("Crib games require 2 to 4 players.");
+        }
+
+        public PlayerAction.ActionType GetCurrentAction()
+        {
+            return PlayerAction.ActionType.Deal;
+        }
+
+        public IList<int> GetCurrentPlayer()
+        {
+            return null;
+        }
+
+        public int GetDealer()
+        {
+            return -1;
+        }
+
+        public Hand GetPlayerHand(int playerId)
+        {
+            return null;
+        }
+
+        public Hand GetCrib()
+        {
+            return null;
+        }
+
+        public Card GetStarterCard()
+        {
+            return null;
+        }
+
+        public Hand GetPlayerDiscards(int playerId)
+        {
+            return null;
         }
 
         public GameStage GetNextStage()

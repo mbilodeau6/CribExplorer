@@ -12,7 +12,7 @@ namespace CribExplorer.Model
         // TODO: Need to clarify distinction between Game and GameEngine.
         // Do I really need both? If yes, what goes where?
 
-        private IDeck deck = new Deck();
+        private IDeck deck;
         private GameState gameState;
         private GameEngine gameEngine;
 

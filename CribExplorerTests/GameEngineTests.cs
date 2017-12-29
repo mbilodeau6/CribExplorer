@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CribExplorer;
 using CribExplorer.Model;
+using Moq;
 
 namespace CribExplorerTests
 {
@@ -10,6 +11,101 @@ namespace CribExplorerTests
     public class GameEngineTests
     {
         private IList<string> testPlayerNames = new List<String>() {"PlayerA", "PlayerB"};
+
+        private Mock<IDeck> CreateMockDeck()
+        {
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
+
+            mockDeck.SetupSequence(x => x.GetNextCard())
+                .Returns(new Card(CardSuit.Heart, CardFace.Ten))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Two))
+                .Returns(new Card(CardSuit.Heart, CardFace.Eight))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Eight))
+                .Returns(new Card(CardSuit.Heart, CardFace.Ace))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Nine))
+                .Returns(new Card(CardSuit.Heart, CardFace.Jack))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Five))
+                .Returns(new Card(CardSuit.Heart, CardFace.Three))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Four))
+                .Returns(new Card(CardSuit.Heart, CardFace.Four))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Seven))
+                .Returns(new Card(CardSuit.Heart, CardFace.Seven))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Queen))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Six));
+
+            return mockDeck;
+        }
+
+        [TestMethod]
+        public void GameEngine_Constructor_Deck()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Assert.IsNotNull(gameEngine, "GameEngine object not created");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void GameEngine_Constructor_MissingDeck()
+        {
+            GameEngine gameEngine = new GameEngine(null, testPlayerNames);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void GameEngine_Constructor_MissingPlayers()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void GameEngine_Constructor_TooManyPlayers()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            IList<string> wrongNumberOfPlayerNames = new List<string>() { "PlayerA", "PlayerB", "Playerc" };
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, wrongNumberOfPlayerNames);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void GameEngine_Constructor_TooFewPlayers()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            IList<string> wrongNumberOfPlayerNames = new List<string>() { "PlayerA" };
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, wrongNumberOfPlayerNames);
+        }
+
+        [TestMethod]
+        public void GameEngine_Constructor_State()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                Dealer = 1
+            };
+
+            GameEngine gameEngine = new GameEngine(state);
+            
+            Assert.IsNotNull(gameEngine, "GameEngine not created");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void GameEngine_Constructor_MissingState()
+        {
+            GameEngine gameEngine = new GameEngine(null);
+        }
+
+        // TODO: Add tests for the following.
+        //   GetCurrentAction()
+        //   GetCurrentPlayer()
+        //   GetDealer()
+        //   GetPlayerHand(int playerId)
+        //   GetCrib()
+        //   GetStarterCard()
+        //   GetPlayerDiscards(int playerId)
 
         [TestMethod]
         public void GameEngine_GetNextStage_Initial()

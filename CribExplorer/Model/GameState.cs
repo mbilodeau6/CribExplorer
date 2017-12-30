@@ -24,6 +24,7 @@ namespace CribExplorer.Model
 
         public void Reset()
         {
+            // TODO: Change this to .Deal once refactoring done.
             Stage = PlayerAction2.NewGame;
             PlayerTurn = -1;
             CurrentPlayers = new List<int>();

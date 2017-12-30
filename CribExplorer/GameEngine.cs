@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -144,21 +145,29 @@ namespace CribExplorer
 
         public PlayerAction2 GetCurrentAction()
         {
-            PlayerAction2 nextAction;
+            PlayerAction2 nextAction = state.Stage;
 
             // TODO: Add real implementation
             switch (state.Stage)
             {
+                case PlayerAction2.CreateCrib:
+                    // TODO: Need to add rest of code
+                    break;
+                case PlayerAction2.PlayOrPass:
+                    if (state.AllCardsPlayed())
+                        nextAction = PlayerAction2.ScoreHands;
+                    else if (state.SumOfPlayedCards == 31 || !state.CardsPlayable())
+                        state.SumOfPlayedCards = 0;
+                    break;
                 case PlayerAction2.ScoreCrib:
                     state.Dealer = GetNextPlayerIndex(state.Dealer);
                     state.CurrentPlayers.Clear();
                     state.CurrentPlayers.Add(state.Dealer);
                     nextAction = PlayerAction2.Deal;
                     break;
-                default:
-                    nextAction = PlayerAction2.Deal;
-                    break;
             }
+
+            state.Stage = nextAction;
 
             return nextAction;
         }
@@ -246,13 +255,16 @@ namespace CribExplorer
             if (playerIndex < 0 || playerIndex >= state.Players.Count)
                 throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
 
+            if (state.Stage != PlayerAction2.PlayOrPass)
+                throw new ApplicationException("Invalid game stage to play a card");
+
             if (!state.Players[playerIndex].Hand.Cards.Contains(card))
                 throw new ArgumentException(string.Format("Player {0} does not have the card requested", playerIndex));
 
             if (state.SumOfPlayedCards + card.Value > 31)
                 throw new ArgumentException("Playing the selected card would put the count over 31");
 
-            if (state.PlayerTurn != playerIndex)
+            if (state.PlayerTurn != playerIndex && !state.CurrentPlayers.Contains(playerIndex))
                 throw new ArgumentException(string.Format("It isn't Player {0}'s turn.", playerIndex));
 
             state.Players[playerIndex].Discard(card);
@@ -264,6 +276,9 @@ namespace CribExplorer
         {
             if (playerIndex < 0 || playerIndex >= state.Players.Count)
                 throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
+
+            if (state.Stage != PlayerAction2.PlayOrPass)
+                throw new ApplicationException("Invalid game stage to pass");
 
             if (playerIndex != state.PlayerTurn)
                 throw new ArgumentException(string.Format("It is not Player {0}'s turn", playerIndex));
@@ -288,5 +303,39 @@ namespace CribExplorer
             return true;
         }
 
+        public void AddToCrib(int playerIndex, Card card)
+        {
+            Debug.Assert(state.Crib.Count <= GameEngine.RequiredHandCardCount);
+
+            if (playerIndex < 0 || playerIndex >= state.Players.Count)
+                throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
+
+            if (state.Stage != PlayerAction2.CreateCrib)
+                throw new ApplicationException("Invalid game stage to contribute to crib");
+
+            if (!state.CurrentPlayers.Contains(playerIndex))
+                throw new ArgumentException(string.Format("Player {0} does not need to contribute to the crib", playerIndex));
+
+            if (!state.Players[playerIndex].Hand.Cards.Contains(card))
+                throw new ArgumentException(string.Format("Player {0} does not have the card requested", playerIndex));
+
+            state.Players[playerIndex].Hand.Cards.Remove(card);
+            state.Crib.Add(card);
+
+            if (state.Players[playerIndex].Hand.Cards.Count <= GameEngine.RequiredHandCardCount)
+                state.CurrentPlayers.Remove(playerIndex);
+        }
+
+        public void DealCards()
+        {
+            if (state.Stage != PlayerAction2.Deal && state.Stage != PlayerAction2.NewGame)
+                throw new ApplicationException("Invalid game stage to deal");
+
+            state.Stage = PlayerAction2.CreateCrib;
+
+            state.CurrentPlayers.Clear();
+            for (int i = 0; i < state.Players.Count; i++)
+                state.CurrentPlayers.Add(i);
+        }
     }
 }

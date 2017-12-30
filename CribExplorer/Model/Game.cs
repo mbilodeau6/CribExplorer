@@ -168,16 +168,6 @@ namespace CribExplorer.Model
                     // TODO: This isn't intuitive...Need to refactor/rename. GetNextStage is advancing the game.
                     gameEngine.GetNextStage();
                     break;
-                case PlayerAction2.CreateCrib:
-                    action.Action = PlayerAction.ActionType.SelectCardForCrib;
-
-                    // Check which players still need to contribute to the crib
-                    foreach(Player player in gameState.Players)
-                    {
-                        if (player.Hand.Cards.Count > GameEngine.RequiredHandCardCount)
-                            action.Players.Add(player.Name);
-                    }
-                    break;
                 case PlayerAction2.NewPlay:
                     if (gameState.CardsPlayable(gameState.Players[gameState.PlayerTurn]))
                         action.Action = PlayerAction.ActionType.PlayCard;

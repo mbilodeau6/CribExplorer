@@ -84,48 +84,6 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        public void Game_GetNextAction_FirstActionIsNoAction()
-        {
-            Mock<IDeck> mockDeck = CreateMockDeck();
-
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
-            PlayerAction action = game.GetNextAction();
-
-            Assert.AreEqual(PlayerAction.ActionType.NoAction, action.Action, "Unexpected action");
-            Assert.AreEqual(0, action.Players.Count, "Unexpected player count");
-        }
-
-        [TestMethod]
-        public void Game_GetNextAction_AllPlayersNeedToContributeToCrib()
-        {
-            Mock<IDeck> mockDeck = CreateMockDeck();
-
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
-            PlayerAction action = game.GetNextAction();
-            action = game.GetNextAction();
-
-            Assert.AreEqual(PlayerAction.ActionType.SelectCardForCrib, action.Action, "Unexpected action");
-            Assert.AreEqual(2, action.Players.Count, "Unexpected player count");
-        }
-
-        [TestMethod]
-        public void Game_GetNextAction_OnePlayerNeedsToContributeToCrib()
-        {
-            Mock<IDeck> mockDeck = CreateMockDeck();
-
-            Game game = new Game(mockDeck.Object, testTwoPlayers);
-            PlayerAction action = game.GetNextAction();
-            game.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Three));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
-            game.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
-
-            action = game.GetNextAction();
-
-            Assert.AreEqual(PlayerAction.ActionType.SelectCardForCrib, action.Action, "Unexpected action");
-            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
-        }
-
-        [TestMethod]
         public void Game_GetNextAction_PlayerNeedsToPlayCard()
         {
             // Set up state where current player has a card that is playable.

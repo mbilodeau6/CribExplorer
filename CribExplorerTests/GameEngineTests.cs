@@ -98,14 +98,73 @@ namespace CribExplorerTests
             GameEngine gameEngine = new GameEngine(null);
         }
 
-        // TODO: Add tests for the following.
-        //   GetCurrentAction()
-        //   GetCurrentPlayer()
-        //   GetDealer()
-        //   GetPlayerHand(int playerId)
-        //   GetCrib()
-        //   GetStarterCard()
-        //   GetPlayerDiscards(int playerId)
+        [TestMethod]
+        public void GameEngine_GetCurrentPlayer_Initial()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            IList<int> currentPlayers = gameEngine.GetCurrentPlayer();
+
+            Assert.AreEqual(1, currentPlayers.Count, "Unexpected number of players with active actions");
+            Assert.AreEqual(1, currentPlayers[0], "Unexpected current player");
+        }
+
+        [TestMethod]
+        public void GameEngine_GetDealer_Initial()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Assert.AreEqual(1, gameEngine.GetDealer());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetCurrentAction_Initial()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Assert.AreEqual(PlayerAction.ActionType.Deal, gameEngine.GetCurrentAction());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetPlayerHand_Initial()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Hand playerHand = gameEngine.GetPlayerHand(0);
+
+            Assert.AreEqual(6, playerHand.Cards.Count, "Unexpected card count for Player 0's hand");
+        }
+
+        [TestMethod]
+        public void GameEngine_GetGetCrib_Initial()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Assert.AreEqual(0, gameEngine.GetCrib().Cards.Count, "Unexpected cards found in the crib");
+        }
+
+        [TestMethod]
+        public void GameEngine_GetStarterCard_Initial()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Assert.AreEqual(new Card(CardSuit.Diamond, CardFace.Six), gameEngine.GetStarterCard());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetPlayerDiscards_Initial()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Assert.AreEqual(0, gameEngine.GetPlayerDiscards(0).Cards.Count, "Unexpected cards found in Player 0's initial discard pile");
+        }
 
         [TestMethod]
         public void GameEngine_GetNextStage_Initial()

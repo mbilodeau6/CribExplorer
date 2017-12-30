@@ -104,37 +104,49 @@ namespace CribExplorer
 
         public PlayerAction.ActionType GetCurrentAction()
         {
+            // TODO: Add real implementation
             return PlayerAction.ActionType.Deal;
         }
 
         public IList<int> GetCurrentPlayer()
         {
-            return null;
+            // TODO: Add real implementation
+            return new List<int>() { 1 };
         }
 
         public int GetDealer()
         {
-            return -1;
+            // TODO: Add real implementation
+            return 1;
         }
 
         public Hand GetPlayerHand(int playerId)
         {
-            return null;
+            // TODO: Add real implementation
+            Hand playerHand = new Hand();
+
+            for (int i = 0; i < 6; i++)
+                playerHand.Cards.Add(null);
+
+            return playerHand;
         }
 
         public Hand GetCrib()
         {
-            return null;
+            // TODO: Add real implementation
+            return new Hand();
         }
 
         public Card GetStarterCard()
         {
-            return null;
+            // TODO: Add real implementation
+            return new Card(CardSuit.Diamond, CardFace.Six);
         }
 
         public Hand GetPlayerDiscards(int playerId)
         {
-            return null;
+            // TODO: Add real implementation
+            return new Hand();
         }
 
         public GameStage GetNextStage()

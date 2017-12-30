@@ -224,7 +224,7 @@ namespace CribExplorerTests
             // Set up state where current player has a card that is playable.
             GameState startingState = new GameState(testTwoPlayers)
             {
-                Stage = GameEngine.GameStage.NewPlay,
+                Stage = PlayerAction2.NewPlay,
                 PlayerTurn = 1,
                 SumOfPlayedCards = 30
             };
@@ -249,7 +249,7 @@ namespace CribExplorerTests
             // Set up state where current player doesn't have a card that is playable.
             GameState startingState = new GameState(testTwoPlayers)
             {
-                Stage = GameEngine.GameStage.NewPlay,
+                Stage = PlayerAction2.NewPlay,
                 PlayerTurn = 1,
                 SumOfPlayedCards = 30
             };
@@ -275,7 +275,7 @@ namespace CribExplorerTests
             // Set up state where all cards are played and therefore the round is over.
             GameState startingState = new GameState(testTwoPlayers)
             {
-                Stage = GameEngine.GameStage.EndPlay,
+                Stage = PlayerAction2.EndPlay,
                 Dealer = 1,
                 PlayerTurn = 0,
             };
@@ -305,7 +305,7 @@ namespace CribExplorerTests
             // their score.
             GameState startingState = new GameState(testTwoPlayers)
             {
-                Stage = GameEngine.GameStage.ScoreHands,
+                Stage = PlayerAction2.ScoreHands,
                 Dealer = 1,
                 PlayerTurn = 0
             };
@@ -332,7 +332,7 @@ namespace CribExplorerTests
             // where dealer needs to score their hand.
             GameState startingState = new GameState(testTwoPlayers)
             {
-                Stage = GameEngine.GameStage.ScoreHands,
+                Stage = PlayerAction2.ScoreHands,
                 Dealer = 1,
                 PlayerTurn = 0,
                 AllHandScoresProvided = false
@@ -354,33 +354,6 @@ namespace CribExplorerTests
             Assert.AreEqual(PlayerAction.ActionType.CalculateCribScore, action.Action, "Unexpected action");
             Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
             Assert.AreEqual("PlayerB", action.Players[0], "Unexpected player name");
-        }
-
-        [TestMethod]
-        public void Game_GetNextAction_NextDealer()
-        {
-            // Set up state so that PlayerB is dealer and game at stage
-            // where dealer needs to score the crib.
-            GameState startingState = new GameState(testTwoPlayers)
-            {
-                Stage = GameEngine.GameStage.ScoreCrib,
-                Dealer = 1,
-                PlayerTurn = 0
-            };
-
-            Mock<IDeck> mockDeck = new Mock<IDeck>();
-
-            Game game = new Game(mockDeck.Object, testTwoPlayers, startingState);
-
-            // Verify that when PlayerB provides crib score a new round 
-            // is started with PlayerA as the dealer.
-            game.IsProvidedScoreCorrectForCrib(10);
-
-            PlayerAction action = game.GetNextAction();
-
-            Assert.AreEqual(PlayerAction.ActionType.Deal, action.Action, "Unexpected action");
-            Assert.AreEqual(1, action.Players.Count, "Unexpected player count");
-            Assert.AreEqual("PlayerA", action.Players[0], "Unexpected player name");
         }
     }
 }

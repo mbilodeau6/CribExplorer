@@ -181,12 +181,12 @@ namespace CribExplorer.Model
 
             switch(gameEngine.GetNextStage())
             {
-                case GameEngine.GameStage.NewRound:
-                case GameEngine.GameStage.StartRound:
+                case PlayerAction2.NewRound:
+                case PlayerAction2.StartRound:
                     // TODO: This isn't intuitive...Need to refactor/rename. GetNextStage is advancing the game.
                     gameEngine.GetNextStage();
                     break;
-                case GameEngine.GameStage.CreateCrib:
+                case PlayerAction2.CreateCrib:
                     action.Action = PlayerAction.ActionType.SelectCardForCrib;
 
                     // Check which players still need to contribute to the crib
@@ -196,7 +196,7 @@ namespace CribExplorer.Model
                             action.Players.Add(player.Name);
                     }
                     break;
-                case GameEngine.GameStage.NewPlay:
+                case PlayerAction2.NewPlay:
                     if (gameState.CardsPlayable(gameState.Players[gameState.PlayerTurn]))
                         action.Action = PlayerAction.ActionType.PlayCard;
                     else
@@ -204,22 +204,16 @@ namespace CribExplorer.Model
 
                     action.Players.Add(gameState.Players[gameState.PlayerTurn].Name);
                     break;
-                case GameEngine.GameStage.EndPlay:
+                case PlayerAction2.EndPlay:
                     gameState.SumOfPlayedCards = 0;
                     break;
-                case GameEngine.GameStage.ScoreHands:
+                case PlayerAction2.ScoreHands:
                     action.Players.Add(gameState.Players[gameState.PlayerTurn].Name);
                     action.Action = PlayerAction.ActionType.CalculateScore;
                     break;
-                case GameEngine.GameStage.ScoreCrib:
+                case PlayerAction2.ScoreCrib:
                     action.Players.Add(gameState.Players[gameState.Dealer].Name);
                     action.Action = PlayerAction.ActionType.CalculateCribScore;
-                    break;
-                case GameEngine.GameStage.EndRound:
-                    gameState.Dealer = gameEngine.GetNextPlayerIndex(gameState.Dealer);
-                    gameState.PlayerTurn = gameState.Dealer;
-                    action.Players.Add(gameState.Players[gameState.Dealer].Name);
-                    action.Action = PlayerAction.ActionType.Deal;
                     break;
                 default:
                     action.Action = PlayerAction.ActionType.NoAction;

@@ -24,8 +24,9 @@ namespace CribExplorer.Model
 
         public void Reset()
         {
-            Stage = GameEngine.GameStage.NewGame;
+            Stage = PlayerAction2.NewGame;
             PlayerTurn = -1;
+            CurrentPlayers = new List<int>();
             Starter = null;
             Players = new List<Player>();
             Crib = new List<Card>();
@@ -38,7 +39,14 @@ namespace CribExplorer.Model
             }
         }
 
+        // TODO: Remove once all logic using CurrentPlayers
         public int PlayerTurn
+        {
+            get;
+            set;
+        }
+
+        public IList<int> CurrentPlayers
         {
             get;
             set;
@@ -68,7 +76,7 @@ namespace CribExplorer.Model
             private set;
         }
 
-        public GameEngine.GameStage Stage
+        public PlayerAction2 Stage
         {
             get;
             set;

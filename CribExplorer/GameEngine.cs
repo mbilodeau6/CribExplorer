@@ -9,20 +9,6 @@ namespace CribExplorer
 {
     public class GameEngine
     {
-        public enum GameStage
-        {
-            NewGame,
-            NewRound,
-            CreateCrib,
-            StartRound,
-            NewPlay,
-            EndPlay,
-            ScoreHands,
-            ScoreCrib,
-            EndRound,
-            EndGame
-        }
-
         private GameState state;
         private IDeck deck;
 
@@ -57,6 +43,7 @@ namespace CribExplorer
         private void StartNew()
         {
             deck.Shuffle();
+            state.CurrentPlayers.Clear();
 
             while (state.PlayerTurn < 0)
             {
@@ -65,9 +52,15 @@ namespace CribExplorer
 
                 // TODO: Need to handle more than 2 players
                 if (playerOneCardValue < playerTwoCardValue)
+                {
                     state.PlayerTurn = 0;
+                    state.CurrentPlayers.Add(0);
+                }
                 else if (playerOneCardValue > playerTwoCardValue)
+                {
                     state.PlayerTurn = 1;
+                    state.CurrentPlayers.Add(1);
+                }
 
                 state.Dealer = state.PlayerTurn;
             }
@@ -102,16 +95,11 @@ namespace CribExplorer
             throw new ApplicationException("Crib games require 2 to 4 players.");
         }
 
-        public PlayerAction.ActionType GetCurrentAction()
-        {
-            // TODO: Add real implementation
-            return PlayerAction.ActionType.Deal;
-        }
 
         public IList<int> GetCurrentPlayer()
         {
             // TODO: Add real implementation
-            return new List<int>() { 1 };
+            return state.CurrentPlayers;
         }
 
         public int GetDealer()
@@ -149,53 +137,80 @@ namespace CribExplorer
             return new Hand();
         }
 
-        public GameStage GetNextStage()
+        public int ProvideScoreForCrib(int providedScore)
+        {
+            // TODO: Add real implementation
+            return 0;
+        }
+
+        public PlayerAction2 GetCurrentAction()
+        {
+            PlayerAction2 nextAction;
+
+            // TODO: Add real implementation
+            switch (state.Stage)
+            {
+                case PlayerAction2.ScoreCrib:
+                    state.Dealer = GetNextPlayerIndex(state.Dealer);
+                    state.CurrentPlayers.Clear();
+                    state.CurrentPlayers.Add(state.Dealer);
+                    nextAction = PlayerAction2.Deal;
+                    break;
+                default:
+                    nextAction = PlayerAction2.Deal;
+                    break;
+            }
+
+            return nextAction;
+        }
+
+        public PlayerAction2 GetNextStage()
         {
             // TODO: Need to add GameWon stage that can be hit on any stage where
             // points are earned.
 
-            if (state.Stage == GameEngine.GameStage.NewGame && state.PlayerTurn < 0)
+            if (state.Stage == PlayerAction2.NewGame && state.PlayerTurn < 0)
                 return state.Stage;
 
-            if (state.Stage == GameEngine.GameStage.NewGame && state.PlayerTurn >= 0)
-                return (state.Stage = GameEngine.GameStage.NewRound);
+            if (state.Stage == PlayerAction2.NewGame && state.PlayerTurn >= 0)
+                return (state.Stage = PlayerAction2.NewRound);
 
-            if (state.Stage == GameEngine.GameStage.NewRound && state.Players[0].Hand.Cards.Count > 0)
-                return (state.Stage = GameEngine.GameStage.CreateCrib);
+            if (state.Stage == PlayerAction2.NewRound && state.Players[0].Hand.Cards.Count > 0)
+                return (state.Stage = PlayerAction2.CreateCrib);
 
-            if (state.Stage == GameEngine.GameStage.CreateCrib && state.Crib.Count == GameEngine.RequiredHandCardCount)
-                return (state.Stage = GameEngine.GameStage.StartRound);
+            if (state.Stage == PlayerAction2.CreateCrib && state.Crib.Count == GameEngine.RequiredHandCardCount)
+                return (state.Stage = PlayerAction2.StartRound);
 
-            if (state.Stage == GameEngine.GameStage.CreateCrib)
+            if (state.Stage == PlayerAction2.CreateCrib)
                 return state.Stage;
 
-            if (state.Stage == GameEngine.GameStage.StartRound && state.Starter != null)
-                return (state.Stage = GameEngine.GameStage.NewPlay);
+            if (state.Stage == PlayerAction2.StartRound && state.Starter != null)
+                return (state.Stage = PlayerAction2.NewPlay);
 
-            if (state.Stage == GameEngine.GameStage.NewPlay)
+            if (state.Stage == PlayerAction2.NewPlay)
             {
                 if (state.SumOfPlayedCards == 31 || state.AllCardsPlayed() || !state.CardsPlayable())
-                    return (state.Stage = GameEngine.GameStage.EndPlay);
+                    return (state.Stage = PlayerAction2.EndPlay);
                 else
                     return state.Stage;
             }
 
-            if (state.Stage == GameEngine.GameStage.EndPlay)
+            if (state.Stage == PlayerAction2.EndPlay)
             {
                 if (state.AllCardsPlayed())
                 {
                     state.AllHandScoresProvided = false;
                     state.PlayerTurn = GetNextPlayerIndex(state.Dealer);
-                    return (state.Stage = GameEngine.GameStage.ScoreHands);
+                    return (state.Stage = PlayerAction2.ScoreHands);
                 }
                 else
-                    return (state.Stage = GameEngine.GameStage.NewPlay);
+                    return (state.Stage = PlayerAction2.NewPlay);
             }
 
-            if (state.Stage == GameStage.ScoreHands)
+            if (state.Stage == PlayerAction2.ScoreHands)
             {
                 if (state.AllHandScoresProvided)
-                    return (state.Stage = GameEngine.GameStage.ScoreCrib);
+                    return (state.Stage = PlayerAction2.ScoreCrib);
 
                 if (state.Dealer == state.PlayerTurn)
                     state.AllHandScoresProvided = true;
@@ -203,15 +218,15 @@ namespace CribExplorer
                 return state.Stage;
             }
 
-            if (state.Stage == GameStage.ScoreCrib)
-                return (state.Stage = GameEngine.GameStage.EndRound);
+            if (state.Stage == PlayerAction2.ScoreCrib)
+                return (state.Stage = PlayerAction2.EndRound);
 
-            if (state.Stage == GameEngine.GameStage.EndRound)
+            if (state.Stage == PlayerAction2.EndRound)
             {
                 if (state.GetWinningPlayer() >= 0)
-                    return (state.Stage = GameEngine.GameStage.EndGame);
+                    return (state.Stage = PlayerAction2.EndGame);
                 else
-                    return (state.Stage = GameEngine.GameStage.NewRound);
+                    return (state.Stage = PlayerAction2.NewRound);
             }
 
             throw new ApplicationException("Invalid state.");

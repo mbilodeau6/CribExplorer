@@ -123,29 +123,11 @@ namespace CribExplorer.Model
 
         public void PlayerPass(int playerIndex)
         {
-            if (playerIndex < 0 || playerIndex >= gameState.Players.Count)
-                throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
-
-            if (playerIndex != gameState.PlayerTurn)
-                throw new ArgumentException(string.Format("It is not Player {0}'s turn", playerIndex));
-
             gameEngine.PlayerPass(playerIndex);
         }
 
         public void PlayCard(int playerIndex, Card card)
         {
-            if (playerIndex < 0 || playerIndex >= gameState.Players.Count)
-                throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
-
-            if (!gameState.Players[playerIndex].Hand.Cards.Contains(card))
-                throw new ArgumentException(string.Format("Player {0} does not have the card requested", playerIndex));
-
-            if (gameState.SumOfPlayedCards + card.Value > 31)
-                throw new ArgumentException("Playing the selected card would put the count over 31");
-
-            if (gameState.PlayerTurn != playerIndex)
-                throw new ArgumentException(string.Format("It isn't Player {0}'s turn.", playerIndex));
-
             gameEngine.PlayCard(playerIndex, card);
         }
 

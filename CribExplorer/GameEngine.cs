@@ -96,9 +96,8 @@ namespace CribExplorer
         }
 
 
-        public IList<int> GetCurrentPlayer()
+        public IList<int> GetCurrentPlayers()
         {
-            // TODO: Add real implementation
             return state.CurrentPlayers;
         }
 
@@ -242,15 +241,36 @@ namespace CribExplorer
             state.PlayerTurn = GetNextPlayerIndex(state.PlayerTurn);
         }
 
-        public void PlayCard(int playerId, Card card)
+        public void PlayCard(int playerIndex, Card card)
         {
-            state.Players[playerId].Discard(card);
+            if (playerIndex < 0 || playerIndex >= state.Players.Count)
+                throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
+
+            if (!state.Players[playerIndex].Hand.Cards.Contains(card))
+                throw new ArgumentException(string.Format("Player {0} does not have the card requested", playerIndex));
+
+            if (state.SumOfPlayedCards + card.Value > 31)
+                throw new ArgumentException("Playing the selected card would put the count over 31");
+
+            if (state.PlayerTurn != playerIndex)
+                throw new ArgumentException(string.Format("It isn't Player {0}'s turn.", playerIndex));
+
+            state.Players[playerIndex].Discard(card);
             state.SumOfPlayedCards += card.Value;
             MoveToNextPlayer();    
         }
 
-        public void PlayerPass(int playerId)
+        public void PlayerPass(int playerIndex)
         {
+            if (playerIndex < 0 || playerIndex >= state.Players.Count)
+                throw new IndexOutOfRangeException(string.Format("Invalid player index of {0}", playerIndex));
+
+            if (playerIndex != state.PlayerTurn)
+                throw new ArgumentException(string.Format("It is not Player {0}'s turn", playerIndex));
+
+            if (state.CardsPlayable(state.Players[playerIndex]))
+                throw new ApplicationException(string.Format("Player {0} has playable cards and can not pass.", playerIndex));
+
             MoveToNextPlayer();
         }
 

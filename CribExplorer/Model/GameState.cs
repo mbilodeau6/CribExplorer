@@ -47,6 +47,9 @@ namespace CribExplorer.Model
             set;
         }
 
+        // TODO: Should create a type for CurrentPlayers so that programmers
+        // don't need to know how to use Lists and so that we can change the 
+        // type without having to change code throughout the program.
         public IList<int> CurrentPlayers
         {
             get;

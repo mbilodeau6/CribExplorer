@@ -161,37 +161,6 @@ namespace CribExplorer.Model
         {
             PlayerAction action = new PlayerAction();
 
-            switch(gameEngine.GetNextStage())
-            {
-                case PlayerAction2.NewRound:
-                case PlayerAction2.StartRound:
-                    // TODO: This isn't intuitive...Need to refactor/rename. GetNextStage is advancing the game.
-                    gameEngine.GetNextStage();
-                    break;
-                case PlayerAction2.NewPlay:
-                    if (gameState.CardsPlayable(gameState.Players[gameState.PlayerTurn]))
-                        action.Action = PlayerAction.ActionType.PlayCard;
-                    else
-                        action.Action = PlayerAction.ActionType.PlayerMustPass;
-
-                    action.Players.Add(gameState.Players[gameState.PlayerTurn].Name);
-                    break;
-                case PlayerAction2.EndPlay:
-                    gameState.SumOfPlayedCards = 0;
-                    break;
-                case PlayerAction2.ScoreHands:
-                    action.Players.Add(gameState.Players[gameState.PlayerTurn].Name);
-                    action.Action = PlayerAction.ActionType.CalculateScore;
-                    break;
-                case PlayerAction2.ScoreCrib:
-                    action.Players.Add(gameState.Players[gameState.Dealer].Name);
-                    action.Action = PlayerAction.ActionType.CalculateCribScore;
-                    break;
-                default:
-                    action.Action = PlayerAction.ActionType.NoAction;
-                    break;
-            }
-
             return action;
         }
 

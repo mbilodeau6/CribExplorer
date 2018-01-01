@@ -28,7 +28,7 @@ namespace CribExplorer.Model
             CurrentPlayers = new List<int>();
             Starter = null;
             Players = new List<Player>();
-            Crib = new List<Card>();
+            Crib = new Hand();
             SumOfPlayedCards = 0;
             AllHandScoresProvided = false;
 
@@ -65,7 +65,7 @@ namespace CribExplorer.Model
             private set;
         }
 
-        public IList<Card> Crib
+        public Hand Crib
         {
             get;
             private set;

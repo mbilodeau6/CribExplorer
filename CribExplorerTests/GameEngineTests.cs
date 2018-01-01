@@ -61,7 +61,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         // TODO: Should handle up to 4 players
         public void GameEngine_Constructor_TooManyPlayers()
         {
@@ -71,7 +71,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_Constructor_TooFewPlayers()
         {
             Mock<IDeck> mockDeck = CreateMockDeck();
@@ -205,7 +205,7 @@ namespace CribExplorerTests
 
             // Verify that when PlayerB provides crib score a new round 
             // is started with PlayerA as the dealer.
-            gameEngine.ProvideScoreForCrib(10);
+            Assert.IsTrue(gameEngine.IsProvidedScoreCorrectForCrib(10));
 
             Assert.AreEqual(PlayerAction.Deal, gameEngine.GetCurrentAction(), "Unexpected action");
 
@@ -263,7 +263,7 @@ namespace CribExplorerTests
             {
                 startingState.Players[0].Hand.Cards.Add(null);
                 startingState.Players[1].Hand.Cards.Add(null);
-                startingState.Crib.Add(null);
+                startingState.Crib.Cards.Add(null);
             }
 
             GameEngine gameEngine = new GameEngine(startingState);
@@ -424,7 +424,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_PlayCard_InvalidPlayerIndexLow()
         {
             Mock<IDeck> mockDeck = CreateMockDeck();
@@ -435,7 +435,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_PlayCard_InvalidPlayerIndexHigh()
         {
             Mock<IDeck> mockDeck = CreateMockDeck();
@@ -529,7 +529,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_PlayerPass_InvalidPlayerIndexLow()
         {
             Mock<IDeck> mockDeck = CreateMockDeck();
@@ -540,7 +540,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_PlayerPass_InvalidPlayerIndexHigh()
         {
             Mock<IDeck> mockDeck = CreateMockDeck();
@@ -627,7 +627,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_AddToCrib_PlayerIndexTooLow()
         {
             GameState state = new GameState(testPlayerNames)
@@ -641,7 +641,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_AddToCrib_PlayerIndexTooHigh()
         {
             GameState state = new GameState(testPlayerNames)
@@ -712,11 +712,7 @@ namespace CribExplorerTests
         [TestMethod]
         public void GameEngine_Deal()
         {
-            GameState state = new GameState(testPlayerNames)
-            {
-                // TODO: Shouldn't have to set this to .Deal when refactoring done
-                Stage = PlayerAction.Deal
-            };
+            GameState state = new GameState(testPlayerNames);
 
             GameEngine gameEngine = new GameEngine(state);
 
@@ -737,7 +733,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_GetPlayerName_IndexTooLow()
         {
             GameState state = new GameState(testPlayerNames);
@@ -748,7 +744,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_GetPlayerName_IndexTooHigh()
         {
             GameState state = new GameState(testPlayerNames);
@@ -771,7 +767,7 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_GetPlayerHand_IndexTooHigh()
         {
             GameState state = new GameState(testPlayerNames);
@@ -781,5 +777,74 @@ namespace CribExplorerTests
             Hand playerHand = gameEngine.GetPlayerHand(2);
         }
 
+        [TestMethod]
+        public void GameEngine_GetCrib()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+            gameEngine.DealCards();
+            
+            Card cardD8 = new Card(CardSuit.Diamond, CardFace.Eight);
+            gameEngine.AddToCrib(1, cardD8);
+            Card cardH8 = new Card(CardSuit.Heart, CardFace.Eight);
+            gameEngine.AddToCrib(0, cardH8);
+            gameEngine.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Nine));
+            gameEngine.AddToCrib(0, new Card(CardSuit.Heart, CardFace.Ace));
+
+            Hand crib = gameEngine.GetCrib();
+
+            Assert.AreEqual(4, crib.Cards.Count, "Unexpected number of cards in the crib");
+            Assert.IsTrue(crib.Cards.Contains(cardD8), "Crib missing Eight of Diamonds");
+            Assert.IsTrue(crib.Cards.Contains(cardH8), "Crib missing Eight of Hearts");
+        }
+
+        [TestMethod]
+        public void GameEngine_GetStarterCard()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+            gameEngine.DealCards();
+
+            Assert.AreEqual(new Card(CardSuit.Diamond, CardFace.Six), gameEngine.GetStarterCard());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetPlayerDiscards()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                Stage = PlayerAction.PlayOrPass
+            };
+
+            Card cardD5 = new Card(CardSuit.Diamond, CardFace.Five);
+            state.Players[1].Discards.Cards.Add(cardD5);
+            Card cardHJ = new Card(CardSuit.Heart, CardFace.Jack);
+            state.Players[0].Discards.Cards.Add(cardHJ);
+            Card cardDQ = new Card(CardSuit.Diamond, CardFace.Queen);
+            state.Players[1].Discards.Cards.Add(cardDQ);
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            Hand player0Discards = gameEngine.GetPlayerDiscards(0);
+            Hand player1Discards = gameEngine.GetPlayerDiscards(1);
+
+            Assert.AreEqual(1, player0Discards.Cards.Count, "Unexpected discard count for player 0");
+            Assert.AreEqual(2, player1Discards.Cards.Count, "Unexpected discard count for player 1");
+            Assert.IsTrue(player0Discards.Cards.Contains(cardHJ), "Player 0 discards should have HJ");
+            Assert.IsTrue(player1Discards.Cards.Contains(cardD5), "Player 0 discards should have D5");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void GameEngine_GetPlayerDiscards_IndexTooHigh()
+        {
+            GameState state = new GameState(testPlayerNames);
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            gameEngine.GetPlayerDiscards(2);
+        }
     }
 }

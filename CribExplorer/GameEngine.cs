@@ -26,7 +26,7 @@ namespace CribExplorer
 
             // TODO: Need to handle 2 to 4 players
             if (playerNames.Count != 2)
-                throw new IndexOutOfRangeException("Current version only supports 2 players");
+                throw new ArgumentOutOfRangeException("Current version only supports 2 players");
 
             this.deck = deck;
             this.state = new GameState(playerNames);
@@ -122,26 +122,19 @@ namespace CribExplorer
 
         public Hand GetCrib()
         {
-            // TODO: Add real implementation
-            return new Hand();
+            return state.Crib;
         }
 
         public Card GetStarterCard()
         {
-            // TODO: Add real implementation
-            return new Card(CardSuit.Diamond, CardFace.Six);
+            return state.Starter;
         }
 
         public Hand GetPlayerDiscards(int playerId)
         {
-            // TODO: Add real implementation
-            return new Hand();
-        }
+            ValidatePlayerId(playerId);
 
-        public int ProvideScoreForCrib(int providedScore)
-        {
-            // TODO: Add real implementation
-            return 0;
+            return state.Players[playerId].Discards;
         }
 
         public PlayerAction GetCurrentAction()
@@ -153,7 +146,7 @@ namespace CribExplorer
             switch (state.Stage)
             {
                 case PlayerAction.CreateCrib:
-                    if (state.Crib.Count == GameEngine.RequiredHandCardCount)
+                    if (state.Crib.Cards.Count == GameEngine.RequiredHandCardCount)
                     {
                         state.CurrentPlayers.Clear();
                         state.CurrentPlayers.Add(state.Dealer);
@@ -264,7 +257,7 @@ namespace CribExplorer
 
         public void AddToCrib(int playerId, Card card)
         {
-            Debug.Assert(state.Crib.Count <= GameEngine.RequiredHandCardCount);
+            Debug.Assert(state.Crib.Cards.Count <= GameEngine.RequiredHandCardCount);
 
             ValidatePlayerId(playerId);
 
@@ -278,7 +271,7 @@ namespace CribExplorer
                 throw new ArgumentException(string.Format("Player {0} does not have the card requested", playerId));
 
             state.Players[playerId].Hand.Cards.Remove(card);
-            state.Crib.Add(card);
+            state.Crib.Cards.Add(card);
 
             if (state.Players[playerId].Hand.Cards.Count <= GameEngine.RequiredHandCardCount)
                 state.CurrentPlayers.Remove(playerId);
@@ -299,7 +292,7 @@ namespace CribExplorer
         private void ValidatePlayerId(int playerId)
         {
             if (playerId < 0 || playerId >= state.Players.Count)
-                throw new IndexOutOfRangeException(string.Format("Invalid player id of {0}", playerId));
+                throw new ArgumentOutOfRangeException(string.Format("Invalid player id of {0}", playerId));
         }
     }
 }

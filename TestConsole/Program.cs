@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CribExplorer.Model;
+using CribExplorer;
 
 namespace TestConsole
 {
     class Program
     {
-        static void ShowPlayerHand(Game game, int playerId)
+        static void ShowPlayerHand(GameEngine game, int playerId)
         {
-            Console.Write("{0}'s hand: ", game.Players[playerId].Name);
+            Console.Write("{0}'s hand: ", game.GetPlayerName(playerId));
 
-            foreach(Card card in game.Players[playerId].Hand.Cards)
+            foreach(Card card in game.GetPlayerHand(playerId).Cards)
             {
                 switch (card.Face)
                 {
@@ -86,16 +87,14 @@ namespace TestConsole
 
         static void Main(string[] args)
         {
-            Game game = new Game(new Deck(), new List<string>() {"Ann", "Bill"});
+            GameEngine game = new GameEngine(new Deck(), new List<string>() {"Ann", "Bill"});
 
             Console.WriteLine();
             Console.WriteLine("NEW GAME");
 
-            Console.WriteLine("{0} won the cut.", game.Players[game.PlayerTurn].Name);
+            Console.WriteLine("{0} won the cut.", game.GetPlayerName(game.GetCurrentPlayers()[0]));
             ShowPlayerHand(game, 0);
             ShowPlayerHand(game, 1);
-
-            game.StartNew();
 
             Console.WriteLine("Press ENTER to exit");
             Console.ReadLine();

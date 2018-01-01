@@ -24,9 +24,7 @@ namespace CribExplorer.Model
 
         public void Reset()
         {
-            // TODO: Change this to .Deal once refactoring done.
-            Stage = PlayerAction2.NewGame;
-            PlayerTurn = -1;
+            Stage = PlayerAction.Deal;
             CurrentPlayers = new List<int>();
             Starter = null;
             Players = new List<Player>();
@@ -38,13 +36,6 @@ namespace CribExplorer.Model
             {
                 Players.Add(new Player(playerName));
             }
-        }
-
-        // TODO: Remove once all logic using CurrentPlayers
-        public int PlayerTurn
-        {
-            get;
-            set;
         }
 
         // TODO: Should create a type for CurrentPlayers so that programmers
@@ -80,7 +71,7 @@ namespace CribExplorer.Model
             private set;
         }
 
-        public PlayerAction2 Stage
+        public PlayerAction Stage
         {
             get;
             set;

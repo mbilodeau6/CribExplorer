@@ -186,8 +186,7 @@ namespace CribExplorerTests
             Mock<IDeck> mockDeck = CreateMockDeck();
             GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
 
-            // TODO: Should really be PlayerAction2.Deal once refactoring done
-            Assert.AreEqual(PlayerAction2.NewGame, gameEngine.GetCurrentAction());
+            Assert.AreEqual(PlayerAction.Deal, gameEngine.GetCurrentAction());
         }
 
         [TestMethod]
@@ -197,7 +196,7 @@ namespace CribExplorerTests
             // where dealer needs to score the crib.
             GameState startingState = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.ScoreCrib,
+                Stage = PlayerAction.ScoreCrib,
                 Dealer = 1,
                 CurrentPlayers = new List<int>() { 1 }
             };
@@ -208,7 +207,7 @@ namespace CribExplorerTests
             // is started with PlayerA as the dealer.
             gameEngine.ProvideScoreForCrib(10);
 
-            Assert.AreEqual(PlayerAction2.Deal, gameEngine.GetCurrentAction(), "Unexpected action");
+            Assert.AreEqual(PlayerAction.Deal, gameEngine.GetCurrentAction(), "Unexpected action");
 
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
             Assert.AreEqual(1, currentPlayers.Count, "Unexpected current player count");
@@ -224,9 +223,9 @@ namespace CribExplorerTests
 
             gameEngine.DealCards();
 
-            PlayerAction2 action = gameEngine.GetCurrentAction();
+            PlayerAction action = gameEngine.GetCurrentAction();
 
-            Assert.AreEqual(PlayerAction2.CreateCrib, action, "Unexpected action");
+            Assert.AreEqual(PlayerAction.CreateCrib, action, "Unexpected action");
             Assert.AreEqual(2, gameEngine.GetCurrentPlayers().Count, "Unexpected player count");
         }
 
@@ -243,9 +242,9 @@ namespace CribExplorerTests
             gameEngine.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Eight));
             gameEngine.AddToCrib(1, new Card(CardSuit.Diamond, CardFace.Queen));
 
-            PlayerAction2 action = gameEngine.GetCurrentAction();
+            PlayerAction action = gameEngine.GetCurrentAction();
 
-            Assert.AreEqual(PlayerAction2.CreateCrib, action, "Unexpected action");
+            Assert.AreEqual(PlayerAction.CreateCrib, action, "Unexpected action");
             Assert.AreEqual(1, gameEngine.GetCurrentPlayers().Count, "Unexpected player count");
         }
 
@@ -256,7 +255,7 @@ namespace CribExplorerTests
             // and therefore the game state should transition to PlayOrPass
             GameState startingState = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.CreateCrib,
+                Stage = PlayerAction.CreateCrib,
                 Dealer = 1
             };
 
@@ -269,7 +268,7 @@ namespace CribExplorerTests
 
             GameEngine gameEngine = new GameEngine(startingState);
 
-            Assert.AreEqual(PlayerAction2.PlayOrPass, gameEngine.GetCurrentAction(), "Unexpected action");
+            Assert.AreEqual(PlayerAction.PlayOrPass, gameEngine.GetCurrentAction(), "Unexpected action");
 
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
 
@@ -282,7 +281,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.PlayOrPass,
+                Stage = PlayerAction.PlayOrPass,
                 SumOfPlayedCards = 22
             };
 
@@ -297,7 +296,7 @@ namespace CribExplorerTests
             gameEngine.PlayCard(0, testCard);
 
             Assert.AreEqual(31, state.SumOfPlayedCards, "Playing H9 should have made card count equal 31");
-            Assert.AreEqual(PlayerAction2.PlayOrPass, gameEngine.GetCurrentAction(), "Should have remained in the PlayOrPassStage");
+            Assert.AreEqual(PlayerAction.PlayOrPass, gameEngine.GetCurrentAction(), "Should have remained in the PlayOrPassStage");
             Assert.AreEqual(0, state.SumOfPlayedCards, "SumOfPlayedCards has not been reset");
         }
 
@@ -306,7 +305,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.PlayOrPass,
+                Stage = PlayerAction.PlayOrPass,
                 SumOfPlayedCards = 29
             };
 
@@ -316,7 +315,7 @@ namespace CribExplorerTests
 
             GameEngine gameEngine = new GameEngine(state);
 
-            Assert.AreEqual(PlayerAction2.PlayOrPass, gameEngine.GetCurrentAction(), "Should have remained in the PlayOrPassStage");
+            Assert.AreEqual(PlayerAction.PlayOrPass, gameEngine.GetCurrentAction(), "Should have remained in the PlayOrPassStage");
             Assert.AreEqual(0, state.SumOfPlayedCards, "SumOfPlayedCards has not been reset");
         }
 
@@ -325,7 +324,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.PlayOrPass,
+                Stage = PlayerAction.PlayOrPass,
                 SumOfPlayedCards = 19
             };
 
@@ -339,7 +338,7 @@ namespace CribExplorerTests
             gameEngine.PlayCard(0, testCard);
 
             Assert.AreEqual(28, state.SumOfPlayedCards, "Unexpected card count");
-            Assert.AreEqual(PlayerAction2.PlayOrPass, gameEngine.GetCurrentAction(), "Should have remained in the PlayOrPassStage");
+            Assert.AreEqual(PlayerAction.PlayOrPass, gameEngine.GetCurrentAction(), "Should have remained in the PlayOrPassStage");
         }
 
         [TestMethod]
@@ -348,7 +347,7 @@ namespace CribExplorerTests
             // Set up state where all cards are played and therefore the round is over.
             GameState startingState = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.PlayOrPass,
+                Stage = PlayerAction.PlayOrPass,
                 Dealer = 1
             };
 
@@ -360,7 +359,7 @@ namespace CribExplorerTests
 
             GameEngine gameEngine = new GameEngine(startingState);
 
-            Assert.AreEqual(PlayerAction2.ScoreHands, gameEngine.GetCurrentAction(), "Unexpected action");
+            Assert.AreEqual(PlayerAction.ScoreHands, gameEngine.GetCurrentAction(), "Unexpected action");
 
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
 
@@ -375,7 +374,7 @@ namespace CribExplorerTests
             // their score.
             GameState startingState = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.ScoreHands,
+                Stage = PlayerAction.ScoreHands,
                 Dealer = 1,
             };
 
@@ -387,7 +386,7 @@ namespace CribExplorerTests
 
             // Verify the system knows the dealer (PlayerB) still has to provide 
             // a score.
-            Assert.AreEqual(PlayerAction2.ScoreHands, gameEngine.GetCurrentAction(), "Unexpected action");
+            Assert.AreEqual(PlayerAction.ScoreHands, gameEngine.GetCurrentAction(), "Unexpected action");
 
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
 
@@ -402,7 +401,7 @@ namespace CribExplorerTests
             // where dealer needs to score their hand.
             GameState startingState = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.ScoreHands,
+                Stage = PlayerAction.ScoreHands,
                 Dealer = 1,
             };
 
@@ -416,7 +415,7 @@ namespace CribExplorerTests
             // game moves to the stage where the crib is calculated.
             gameEngine.IsProvidedScoreCorrectForHand(1, 10);
 
-            Assert.AreEqual(PlayerAction2.ScoreCrib, gameEngine.GetCurrentAction(), "Unexpected action");
+            Assert.AreEqual(PlayerAction.ScoreCrib, gameEngine.GetCurrentAction(), "Unexpected action");
 
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
             
@@ -465,8 +464,7 @@ namespace CribExplorerTests
 
             GameState state = new GameState(testPlayerNames)
             {
-                PlayerTurn = 1,
-                Stage = PlayerAction2.PlayOrPass
+                Stage = PlayerAction.PlayOrPass
             };
 
             state.Players[1].Hand.Cards.Add(testCard);
@@ -482,8 +480,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                PlayerTurn = 1,
-                Stage = PlayerAction2.PlayOrPass
+                Stage = PlayerAction.PlayOrPass
             };
 
             GameEngine gameEngine = new GameEngine(state);
@@ -499,8 +496,7 @@ namespace CribExplorerTests
 
             GameState state = new GameState(testPlayerNames)
             {
-                PlayerTurn = 1,
-                Stage = PlayerAction2.PlayOrPass,
+                Stage = PlayerAction.PlayOrPass,
                 SumOfPlayedCards = 28
             };
 
@@ -521,7 +517,7 @@ namespace CribExplorerTests
 
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.PlayOrPass
+                Stage = PlayerAction.PlayOrPass
             };
 
             state.CurrentPlayers.Add(1);
@@ -560,7 +556,6 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                PlayerTurn = 1,
                 SumOfPlayedCards = 30
             };
 
@@ -586,8 +581,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                PlayerTurn = 1,
-                Stage = PlayerAction2.PlayOrPass
+                Stage = PlayerAction.PlayOrPass
             };
 
             GameEngine gameEngine = new GameEngine(state);
@@ -601,7 +595,7 @@ namespace CribExplorerTests
             GameState state = new GameState(testPlayerNames)
             {
                 SumOfPlayedCards = 30,
-                Stage = PlayerAction2.PlayOrPass
+                Stage = PlayerAction.PlayOrPass
             };
 
             state.CurrentPlayers.Add(1);
@@ -638,7 +632,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.CreateCrib
+                Stage = PlayerAction.CreateCrib
             };
 
             GameEngine gameEngine = new GameEngine(state);
@@ -652,7 +646,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.CreateCrib
+                Stage = PlayerAction.CreateCrib
             };
 
             GameEngine gameEngine = new GameEngine(state);
@@ -666,7 +660,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.CreateCrib
+                Stage = PlayerAction.CreateCrib
             };
 
             GameEngine gameEngine = new GameEngine(state);
@@ -689,7 +683,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.CreateCrib
+                Stage = PlayerAction.CreateCrib
             };
 
             Card testCard = new Card(CardSuit.Heart, CardFace.Eight);
@@ -707,7 +701,7 @@ namespace CribExplorerTests
         {
             GameState state = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction2.PlayOrPass
+                Stage = PlayerAction.PlayOrPass
             };
 
             GameEngine gameEngine = new GameEngine(state);
@@ -721,15 +715,71 @@ namespace CribExplorerTests
             GameState state = new GameState(testPlayerNames)
             {
                 // TODO: Shouldn't have to set this to .Deal when refactoring done
-                Stage = PlayerAction2.Deal
+                Stage = PlayerAction.Deal
             };
 
             GameEngine gameEngine = new GameEngine(state);
 
             gameEngine.DealCards();
 
-            Assert.AreEqual(PlayerAction2.CreateCrib, gameEngine.GetCurrentAction(), "Unexpected current action");
+            Assert.AreEqual(PlayerAction.CreateCrib, gameEngine.GetCurrentAction(), "Unexpected current action");
             Assert.AreEqual(2, gameEngine.GetCurrentPlayers().Count, "Unexpected current player count");
         }
+
+        [TestMethod]
+        public void GameEngine_GetPlayerName()
+        {
+            GameState state = new GameState(testPlayerNames);
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            Assert.AreEqual(testPlayerNames[1], gameEngine.GetPlayerName(1));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void GameEngine_GetPlayerName_IndexTooLow()
+        {
+            GameState state = new GameState(testPlayerNames);
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            string name = gameEngine.GetPlayerName(-1);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void GameEngine_GetPlayerName_IndexTooHigh()
+        {
+            GameState state = new GameState(testPlayerNames);
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            string name = gameEngine.GetPlayerName(2);
+        }
+
+        [TestMethod]
+        public void GameEngine_GetPlayerHand()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Hand playerHand = gameEngine.GetPlayerHand(1);
+            Assert.AreEqual(6, playerHand.Cards.Count, "Unexpected card count for hand");
+            Assert.AreEqual(new Card(CardSuit.Diamond, CardFace.Eight), playerHand.Cards[0], "Unexpected first card in hand");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void GameEngine_GetPlayerHand_IndexTooHigh()
+        {
+            GameState state = new GameState(testPlayerNames);
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            Hand playerHand = gameEngine.GetPlayerHand(2);
+        }
+
     }
 }

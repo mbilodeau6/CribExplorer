@@ -55,7 +55,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="GameEngine.cs" />
-    <Compile Include="Model\Game.cs" />
     <Compile Include="Model\GameState.cs" />
     <Compile Include="Model\Player.cs" />
     <Compile Include="PlayerAction.cs" />

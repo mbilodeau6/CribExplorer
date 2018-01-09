@@ -160,6 +160,16 @@ namespace CribExplorer
                         state.CurrentPlayers.Clear();
                         state.CurrentPlayers.Add(GetNextPlayerIndex(state.Dealer));
                         state.AllHandScoresProvided = false;
+
+                        foreach (Player player in state.Players)
+                        {
+                            foreach (Card card in player.Discards.Cards)
+                            {
+                                player.Hand.Cards.Add(card);
+                            }
+
+                            player.Discards.Cards.Clear();
+                        }
                     }
                     else if (state.SumOfPlayedCards == 31 || !state.CardsPlayable())
                         state.SumOfPlayedCards = 0;
@@ -178,6 +188,7 @@ namespace CribExplorer
                     state.CurrentPlayers.Clear();
                     state.CurrentPlayers.Add(state.Dealer);
                     nextAction = PlayerAction.Deal;
+                    state.ResetForNewRound();
                     break;
             }
 
@@ -294,5 +305,11 @@ namespace CribExplorer
             if (playerId < 0 || playerId >= state.Players.Count)
                 throw new ArgumentOutOfRangeException(string.Format("Invalid player id of {0}", playerId));
         }
+
+        public int GetSumOfPlayedCards()
+        {
+            return state.SumOfPlayedCards;
+        }
+
     }
 }

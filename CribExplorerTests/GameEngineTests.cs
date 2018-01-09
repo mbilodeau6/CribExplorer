@@ -198,8 +198,11 @@ namespace CribExplorerTests
             {
                 Stage = PlayerAction.ScoreCrib,
                 Dealer = 1,
-                CurrentPlayers = new List<int>() { 1 }
+                CurrentPlayers = new List<int>() { 1 },
+                Starter = new Card(CardSuit.Spade, CardFace.Ace)
             };
+
+            startingState.Crib.Cards.Add(new Card(CardSuit.Heart, CardFace.Ace));
 
             GameEngine gameEngine = new GameEngine(startingState);
 
@@ -212,6 +215,9 @@ namespace CribExplorerTests
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
             Assert.AreEqual(1, currentPlayers.Count, "Unexpected current player count");
             Assert.AreEqual(0, currentPlayers[0], "Unexpected current player");
+
+            Assert.AreEqual(0, startingState.Crib.Cards.Count, "Shouldn't have cards in a crib when starting a new round.");
+            Assert.IsNull(startingState.Starter, "Shouldn't have a starter card when starting a new round");
         }
 
         [TestMethod]
@@ -360,6 +366,8 @@ namespace CribExplorerTests
             GameEngine gameEngine = new GameEngine(startingState);
 
             Assert.AreEqual(PlayerAction.ScoreHands, gameEngine.GetCurrentAction(), "Unexpected action");
+            Assert.AreEqual(4, startingState.Players[0].Hand.Cards.Count, "Expected cards to be returned to Player 0's hand");
+            Assert.AreEqual(4, startingState.Players[1].Hand.Cards.Count, "Expected cards to be returned to Player 1's hand");
 
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
 
@@ -845,6 +853,19 @@ namespace CribExplorerTests
             GameEngine gameEngine = new GameEngine(state);
 
             gameEngine.GetPlayerDiscards(2);
+        }
+
+        [TestMethod]
+        public void GameEngine_GetSumOfPlayedCards()
+        {
+            GameState state = new GameState(testPlayerNames)
+                {
+                    SumOfPlayedCards = 10
+                };
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            Assert.AreEqual(10, gameEngine.GetSumOfPlayedCards());
         }
     }
 }

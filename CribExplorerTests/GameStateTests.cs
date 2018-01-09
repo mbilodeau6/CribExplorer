@@ -146,5 +146,30 @@ namespace CribExplorerTests
             Assert.IsTrue(state.CardsPlayable(state.Players[1]));
         }
 
+        [TestMethod]
+        public void GameState_ResetForNewRound()
+        {
+            GameState state = new GameState(new List<string>() {"A", "B"});
+
+            state.Crib.Cards.Add(null);
+            state.Starter = new Card(CardSuit.Club, CardFace.Ace);
+            state.SumOfPlayedCards = 10;
+            state.AllHandScoresProvided = true;
+            state.Players[0].Hand.Cards.Add(null);
+            state.Players[0].Discards.Cards.Add(null);
+            state.Players[1].Hand.Cards.Add(null);
+            state.Players[1].Discards.Cards.Add(null);
+
+            state.ResetForNewRound();
+
+            Assert.AreEqual(0, state.Crib.Cards.Count, "Unexpected number of cards in crib");
+            Assert.IsNull(state.Starter, "There should be no starter card");
+            Assert.AreEqual(0, state.SumOfPlayedCards, "Unexpected SumOfPlayedCards");
+            Assert.IsFalse(state.AllHandScoresProvided, "Unexpected value for AllHandScoresProvided");
+            Assert.AreEqual(0, state.Players[0].Hand.Cards.Count, "Unexpected cards in player 0's hand");
+            Assert.AreEqual(0, state.Players[0].Discards.Cards.Count, "Unexpected cards in player 0's discards");
+            Assert.AreEqual(0, state.Players[1].Hand.Cards.Count, "Unexpected cards in player 1's hand");
+            Assert.AreEqual(0, state.Players[1].Discards.Cards.Count, "Unexpected cards in player 1's discards");
+        }
     }
 }

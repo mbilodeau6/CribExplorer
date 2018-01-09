@@ -19,22 +19,32 @@ namespace CribExplorer.Model
                 throw new ArgumentException("Crib requires 2 to 4 players.");
 
             PlayerNames = playerNames;
-            Reset();
-        }
 
-        public void Reset()
-        {
+            // Set up game
             Stage = PlayerAction.Deal;
             CurrentPlayers = new List<int>();
-            Starter = null;
+
             Players = new List<Player>();
+            foreach (string playerName in PlayerNames)
+            {
+                Players.Add(new Player(playerName));
+            }
+
+            // Set up round
+            ResetForNewRound();
+        }
+
+        public void ResetForNewRound()
+        {
+            Starter = null;
             Crib = new Hand();
             SumOfPlayedCards = 0;
             AllHandScoresProvided = false;
 
-            foreach (string playerName in PlayerNames)
+            foreach(Player player in Players)
             {
-                Players.Add(new Player(playerName));
+                player.Hand.Cards.Clear();
+                player.Discards.Cards.Clear();
             }
         }
 

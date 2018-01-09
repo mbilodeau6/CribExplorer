@@ -118,7 +118,7 @@ namespace CribExplorerTests
             Assert.AreEqual(1, currentPlayers.Count, "Unexpected current player count");
             Assert.AreEqual(0, currentPlayers[0], "Unexpected current player");
 
-            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(19));
+            mockDeck.Verify(x => x.GetNextCard(), Times.Exactly(6));
         }
 
         [TestMethod]
@@ -147,6 +147,7 @@ namespace CribExplorerTests
         {
             Mock<IDeck> mockDeck = CreateMockDeck();
             GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+            gameEngine.DealCards();
 
             Hand playerHand = gameEngine.GetPlayerHand(0);
 
@@ -167,6 +168,7 @@ namespace CribExplorerTests
         {
             Mock<IDeck> mockDeck = CreateMockDeck();
             GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+            gameEngine.DealCards();
 
             Assert.AreEqual(new Card(CardSuit.Diamond, CardFace.Six), gameEngine.GetStarterCard());
         }
@@ -720,14 +722,16 @@ namespace CribExplorerTests
         [TestMethod]
         public void GameEngine_Deal()
         {
-            GameState state = new GameState(testPlayerNames);
+            Mock<IDeck> mockDeck = CreateMockDeck();
 
-            GameEngine gameEngine = new GameEngine(state);
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
 
             gameEngine.DealCards();
 
             Assert.AreEqual(PlayerAction.CreateCrib, gameEngine.GetCurrentAction(), "Unexpected current action");
             Assert.AreEqual(2, gameEngine.GetCurrentPlayers().Count, "Unexpected current player count");
+            Assert.AreEqual(6, gameEngine.GetPlayerHand(0).Cards.Count, "Unexpected number of cards in Player 0's hand");
+            Assert.AreEqual(6, gameEngine.GetPlayerHand(1).Cards.Count, "Unexpected number of cards in Player 1's hand");
         }
 
         [TestMethod]
@@ -768,6 +772,7 @@ namespace CribExplorerTests
             Mock<IDeck> mockDeck = CreateMockDeck();
 
             GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+            gameEngine.DealCards();
 
             Hand playerHand = gameEngine.GetPlayerHand(1);
             Assert.AreEqual(6, playerHand.Cards.Count, "Unexpected card count for hand");

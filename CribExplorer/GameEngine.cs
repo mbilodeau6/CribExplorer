@@ -40,6 +40,7 @@ namespace CribExplorer
                 throw new ArgumentNullException("gameState");
 
             this.state = gameState;
+            this.deck = new Deck();
         }
 
         private void StartNew()
@@ -64,16 +65,6 @@ namespace CribExplorer
             }
 
             state.Dealer = state.CurrentPlayers[0];
-
-            for (int i = 0; i < GetCardCountToDeal(); i++)
-            {
-                // TODO: Need to handle more than 2 players
-                state.Players[0].Hand.Cards.Add(deck.GetNextCard());
-                state.Players[1].Hand.Cards.Add(deck.GetNextCard());
-            }
-
-            // REVIEW: Should I introduce a method to cut for the Starter?
-            state.Starter = deck.GetNextCard();
         }
 
         public int GetMaxTotalHandCount()
@@ -189,6 +180,7 @@ namespace CribExplorer
                     state.CurrentPlayers.Add(state.Dealer);
                     nextAction = PlayerAction.Deal;
                     state.ResetForNewRound();
+                    deck.Shuffle();
                     break;
             }
 
@@ -292,6 +284,20 @@ namespace CribExplorer
         {
             if (state.Stage != PlayerAction.Deal)
                 throw new ApplicationException("Invalid game stage to deal");
+
+            int dealingToPlayer = GetNextPlayerIndex(state.Dealer);
+
+            for (int i = 0; i < GetCardCountToDeal(); i++)
+            {
+                for (int j = 0; j < state.Players.Count; j++)
+                {
+                    state.Players[dealingToPlayer].Hand.Cards.Add(deck.GetNextCard());
+                    dealingToPlayer = GetNextPlayerIndex(dealingToPlayer);
+                }
+            }
+
+            // REVIEW: Should I introduce a method to cut for the Starter?
+            state.Starter = deck.GetNextCard();
 
             state.Stage = PlayerAction.CreateCrib;
 

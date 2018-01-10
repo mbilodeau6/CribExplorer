@@ -65,7 +65,7 @@ namespace CribExplorer
                 }
             }
 
-            if (straightSize > 0)
+            if (straightSize > 2)
                 return straightSize * multiplier;
             else
                 return 0;

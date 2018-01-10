@@ -371,6 +371,23 @@ namespace CribExplorerTests
             Assert.AreEqual(5, pointCalc.GetStraightPoints());
         }
 
+        [TestMethod]
+        public void PointCalculator_GetStraightPoints_VerifyFixKingCountedAsStraight()
+        {
+            Hand hand = new Hand();
+
+            hand.Cards = new List<Card>()
+            {
+                new Card(CardSuit.Diamond, CardFace.King),
+                new Card(CardSuit.Club, CardFace.Six),
+                new Card(CardSuit.Spade, CardFace.Jack),
+                new Card(CardSuit.Spade, CardFace.Six),
+            };
+
+            PointCalculator pointCalc = new PointCalculator(hand, new Card(CardSuit.Spade, CardFace.Two));
+
+            Assert.AreEqual(0, pointCalc.GetStraightPoints());
+        }
 
         [TestMethod]
         public void PointCalculator_GetStraightPoints_TwoStraights()

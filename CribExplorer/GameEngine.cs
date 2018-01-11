@@ -111,6 +111,13 @@ namespace CribExplorer
             return state.Players[playerId].Name;
         }
 
+        public int GetPlayerScore(int playerId)
+        {
+            ValidatePlayerId(playerId);
+
+            return state.Players[playerId].Score;
+        }
+
         public Hand GetCrib()
         {
             return state.Crib;
@@ -248,6 +255,7 @@ namespace CribExplorer
                 state.AllHandScoresProvided = true;
 
             // TODO: Add logic and tests to check score.
+            state.Players[playerId].Score += score;
             MoveToNextPlayer();
             return true;
         }
@@ -255,6 +263,7 @@ namespace CribExplorer
         public bool IsProvidedScoreCorrectForCrib(int score)
         {
             // TODO: Add logic and tests to check score.
+            state.Players[state.Dealer].Score += score;
             return true;
         }
 
@@ -317,5 +326,9 @@ namespace CribExplorer
             return state.SumOfPlayedCards;
         }
 
+        public int GetNumberOfPlayers()
+        {
+            return state.Players.Count;
+        }
     }
 }

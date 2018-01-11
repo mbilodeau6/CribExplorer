@@ -117,6 +117,15 @@ namespace TestConsole
             return gameEngine.GetPlayerName(gameEngine.GetCurrentPlayers()[0]);
         }
 
+        static void DisplayScores(GameEngine gameEngine)
+        {
+            Console.Write("Current Score: ");
+            for (int i = 0; i < gameEngine.GetNumberOfPlayers(); i++)
+                Console.Write("{0} = {1}; ", gameEngine.GetPlayerName(i), gameEngine.GetPlayerScore(i));
+
+            Console.WriteLine();
+        }
+
         static void PerformGameAction(GameEngine gameEngine)
         {
             bool cardSelected = false;
@@ -124,7 +133,9 @@ namespace TestConsole
             Hand playerHand = null;
             int selectedIndex = -1;
             int score = 0;
-            
+
+            DisplayScores(gameEngine);
+
             switch (gameEngine.GetCurrentAction())
             {
                 case PlayerAction.Deal:
@@ -169,31 +180,37 @@ namespace TestConsole
                     ShowCard(gameEngine.GetStarterCard());
                     Console.WriteLine();
 
-                    while (!cardSelected)
-                    {
                         ShowPlayerHand(gameEngine, currentPlayerIndex, true);
                         Console.Write("{0}... Pick a card to play or press 9 to pass: ", GetCurrentPlayersName(gameEngine));
 
-                        if ((!int.TryParse(Console.ReadLine(), out selectedIndex) || 
-                                selectedIndex < 0 || 
+                        if ((!int.TryParse(Console.ReadLine(), out selectedIndex) ||
+                                selectedIndex < 0 ||
                                 selectedIndex >= playerHand.Cards.Count) && selectedIndex != 9)
+                        {
                             Console.WriteLine("Invalid card index. Please select a number between 0 and {0} or select 9 to pass", playerHand.Cards.Count - 1);
+                        }
                         else
-                            cardSelected = true;
-                    }
-
-                    if (selectedIndex == 9)
-                    {
-                        Console.WriteLine("Player Passed");
-                        gameEngine.PlayerPass(currentPlayerIndex);
-                    }
-                    else
-                    { 
-                        Console.Write("Played ");
-                        ShowCard(playerHand.Cards[selectedIndex]);
-                        Console.WriteLine();
-                        gameEngine.PlayCard(currentPlayerIndex, playerHand.Cards[selectedIndex]);
-                    }
+                        {
+                            try
+                            {
+                                if (selectedIndex == 9)
+                                {
+                                    Console.WriteLine("Player Passed");
+                                    gameEngine.PlayerPass(currentPlayerIndex);
+                                }
+                                else
+                                {
+                                    Console.Write("Played ");
+                                    ShowCard(playerHand.Cards[selectedIndex]);
+                                    Console.WriteLine();
+                                    gameEngine.PlayCard(currentPlayerIndex, playerHand.Cards[selectedIndex]);
+                                }
+                            }
+                            catch (Exception e) // TODO: Review. Should these be exceptions? If yes, should I create custom exceptions?
+                            {
+                                Console.WriteLine("ERROR: Invalid Selection. {0}", e.Message);
+                            }
+                        }
 
                     Console.WriteLine();
                     break;

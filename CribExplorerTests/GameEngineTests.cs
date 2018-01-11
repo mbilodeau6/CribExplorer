@@ -872,5 +872,32 @@ namespace CribExplorerTests
 
             Assert.AreEqual(10, gameEngine.GetSumOfPlayedCards());
         }
+
+        [TestMethod]
+        public void GameEngine_GetPlayerScore()
+        {
+            GameState state = new GameState(testPlayerNames)
+            {
+                Stage = PlayerAction.ScoreHands,
+                Dealer = 1
+            };
+
+            state.CurrentPlayers.Add(0);
+
+            GameEngine gameEngine = new GameEngine(state);
+            gameEngine.IsProvidedScoreCorrectForHand(0, 11);
+
+            Assert.AreEqual(0, gameEngine.GetPlayerScore(1), "Unexpected score for player 1");
+            Assert.AreEqual(11, gameEngine.GetPlayerScore(0), "Unexpected score for player 0");
+        }
+
+        [TestMethod]
+        public void GameEngine_GetNumberOfPlayers()
+        {
+            Mock<IDeck> mockDeck = CreateMockDeck();
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            Assert.AreEqual(2, gameEngine.GetNumberOfPlayers());
+        }
     }
 }

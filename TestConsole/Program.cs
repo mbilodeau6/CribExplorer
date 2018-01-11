@@ -10,6 +10,8 @@ namespace TestConsole
 {
     class Program
     {
+        private static bool gameDone;
+
         static void ShowCard(Card card)
         {
             switch (card.Face)
@@ -249,7 +251,8 @@ namespace TestConsole
                     Console.WriteLine();
                     break;
                 case PlayerAction.DeclareWinner:
-                        Console.WriteLine("??? is the WINNER!");
+                        Console.WriteLine("{0} is the WINNER!", gameEngine.GetPlayerName(gameEngine.GetWinningPlayer()));
+                        gameDone = true;
                     break;
                 default:
                     throw new ApplicationException("Unexpected PlayerAction");
@@ -258,11 +261,13 @@ namespace TestConsole
 
         static void Main(string[] args)
         {
+            gameDone = false;
+
             Console.WriteLine("NEW GAME");
             GameEngine game = new GameEngine(new Deck(), GetPlayerNames());
             Console.WriteLine("{0} won the cut.", game.GetPlayerName(game.GetCurrentPlayers()[0]));
 
-            while(true)
+            while(!gameDone)
             {
                 PerformGameAction(game);
             }

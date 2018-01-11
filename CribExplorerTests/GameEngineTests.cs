@@ -434,6 +434,57 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
+        public void GameEngine_GetCurrentAction_DeclareWinnerDuringPlayOrPass()
+        {
+            GameState startingState = new GameState(testPlayerNames)
+            {
+                Stage = PlayerAction.PlayOrPass
+            };
+
+            startingState.Players[0].Score = GameEngine.WinningScore;
+            startingState.Players[1].Score = 100;
+
+            GameEngine gameEngine = new GameEngine(startingState);
+
+            Assert.AreEqual(PlayerAction.DeclareWinner, gameEngine.GetCurrentAction(), "Unexpected action.");
+            Assert.AreEqual(0, gameEngine.GetWinningPlayer(), "Unexpected player declared the winner");
+        }
+
+        [TestMethod]
+        public void GameEngine_GetCurrentAction_DeclareWinnerDuringScoreHands()
+        {
+            GameState startingState = new GameState(testPlayerNames)
+            {
+                Stage = PlayerAction.ScoreHands
+            };
+
+            startingState.Players[1].Score = GameEngine.WinningScore;
+            startingState.Players[0].Score = 100;
+
+            GameEngine gameEngine = new GameEngine(startingState);
+
+            Assert.AreEqual(PlayerAction.DeclareWinner, gameEngine.GetCurrentAction(), "Unexpected action.");
+            Assert.AreEqual(1, gameEngine.GetWinningPlayer(), "Unexpected player declared the winner");
+        }
+
+        [TestMethod]
+        public void GameEngine_GetCurrentAction_DeclareWinnerDuringScoreCrib()
+        {
+            GameState startingState = new GameState(testPlayerNames)
+            {
+                Stage = PlayerAction.ScoreCrib
+            };
+
+            startingState.Players[1].Score = GameEngine.WinningScore;
+            startingState.Players[0].Score = 100;
+
+            GameEngine gameEngine = new GameEngine(startingState);
+
+            Assert.AreEqual(PlayerAction.DeclareWinner, gameEngine.GetCurrentAction(), "Unexpected action.");
+            Assert.AreEqual(1, gameEngine.GetWinningPlayer(), "Unexpected player declared the winner");
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GameEngine_PlayCard_InvalidPlayerIndexLow()
         {
@@ -735,6 +786,35 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
+        public void GameEngine_Deal_StarterIsAJack()
+        {
+            Mock<IDeck> mockDeck = new Mock<IDeck>();
+
+            mockDeck.SetupSequence(x => x.GetNextCard())
+                .Returns(new Card(CardSuit.Heart, CardFace.Ten))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Two))
+                .Returns(new Card(CardSuit.Heart, CardFace.Eight))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Eight))
+                .Returns(new Card(CardSuit.Heart, CardFace.Ace))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Nine))
+                .Returns(new Card(CardSuit.Heart, CardFace.Jack))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Five))
+                .Returns(new Card(CardSuit.Heart, CardFace.Three))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Four))
+                .Returns(new Card(CardSuit.Heart, CardFace.Four))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Seven))
+                .Returns(new Card(CardSuit.Heart, CardFace.Seven))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Queen))
+                .Returns(new Card(CardSuit.Diamond, CardFace.Jack));
+
+            GameEngine gameEngine = new GameEngine(mockDeck.Object, testPlayerNames);
+
+            gameEngine.DealCards();
+
+            Assert.AreEqual(2, gameEngine.GetPlayerScore(1));
+        }
+
+        [TestMethod]
         public void GameEngine_GetPlayerName()
         {
             GameState state = new GameState(testPlayerNames);
@@ -899,5 +979,30 @@ namespace CribExplorerTests
 
             Assert.AreEqual(2, gameEngine.GetNumberOfPlayers());
         }
+
+        [TestMethod]
+        public void GameEngine_GetWinningPlayer_NoWinnerYet()
+        {
+            GameState state = new GameState(testPlayerNames);
+            state.Players[0].Score = GameEngine.WinningScore - 1;
+            state.Players[1].Score = GameEngine.WinningScore - 1;
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            Assert.AreEqual(-1, gameEngine.GetWinningPlayer());
+        }
+
+        [TestMethod]
+        public void GameEngine_GetWinningPlayer()
+        {
+            GameState state = new GameState(testPlayerNames);
+            state.Players[0].Score = GameEngine.WinningScore - 1;
+            state.Players[1].Score = GameEngine.WinningScore;
+
+            GameEngine gameEngine = new GameEngine(state);
+
+            Assert.AreEqual(1, gameEngine.GetWinningPlayer());
+        }
+
     }
 }

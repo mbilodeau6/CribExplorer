@@ -139,9 +139,12 @@ namespace CribExplorer
         {
             PlayerAction nextAction = state.Stage;
 
+            if (state.GetWinningPlayer() >= 0)
+                nextAction = PlayerAction.DeclareWinner;
+
             // TODO: Need to rename or refactor more. Do I need this routine to 
             // transition to the next state? If yes, it shouldn't be a Get method.
-            switch (state.Stage)
+            switch (nextAction)
             {
                 case PlayerAction.CreateCrib:
                     if (state.Crib.Cards.Count == GameEngine.RequiredHandCardCount)
@@ -308,6 +311,9 @@ namespace CribExplorer
             // REVIEW: Should I introduce a method to cut for the Starter?
             state.Starter = deck.GetNextCard();
 
+            if (state.Starter.Face == CardFace.Jack)
+                state.Players[state.Dealer].Score += 2;
+
             state.Stage = PlayerAction.CreateCrib;
 
             state.CurrentPlayers.Clear();
@@ -329,6 +335,15 @@ namespace CribExplorer
         public int GetNumberOfPlayers()
         {
             return state.Players.Count;
+        }
+
+        public int GetWinningPlayer()
+        {
+            for (int i = 0; i < state.Players.Count; i++)
+                if (state.Players[i].Score >= GameEngine.WinningScore)
+                    return i;
+
+            return -1;
         }
     }
 }

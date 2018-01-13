@@ -97,5 +97,76 @@ namespace CribExplorer.Model
         {
             return hashCode;
         }
+
+        public override string ToString()
+        {
+            string faceValue;
+            string suitValue;
+
+            switch (Face)
+            {
+                case CardFace.Ace:
+                    faceValue = "A";
+                    break;
+                case CardFace.Two:
+                    faceValue = "2";
+                    break;
+                case CardFace.Three:
+                    faceValue = "3";
+                    break;
+                case CardFace.Four:
+                    faceValue = "4";
+                    break;
+                case CardFace.Five:
+                    faceValue = "5";
+                    break;
+                case CardFace.Six:
+                    faceValue = "6";
+                    break;
+                case CardFace.Seven:
+                    faceValue = "7";
+                    break;
+                case CardFace.Eight:
+                    faceValue = "8";
+                    break;
+                case CardFace.Nine:
+                    faceValue = "9";
+                    break;
+                case CardFace.Ten:
+                    faceValue = "T";
+                    break;
+                case CardFace.Jack:
+                    faceValue = "J";
+                    break;
+                case CardFace.Queen:
+                    faceValue = "Q";
+                    break;
+                case CardFace.King:
+                    faceValue = "K";
+                    break;
+                default:
+                    throw new Exception("Unrecognized card face");
+            }
+
+            switch (Suit)
+            {
+                case CardSuit.Club:
+                    suitValue = "C";
+                    break;
+                case CardSuit.Spade:
+                    suitValue = "S";
+                    break;
+                case CardSuit.Diamond:
+                    suitValue = "D";
+                    break;
+                case CardSuit.Heart:
+                    suitValue = "H";
+                    break;
+                default:
+                    throw new Exception("Unexpected card suit");
+            }
+
+            return string.Format("{0}{1}", faceValue, suitValue);
+        }
     }
 }

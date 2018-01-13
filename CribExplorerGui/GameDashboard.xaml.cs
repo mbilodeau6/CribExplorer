@@ -26,6 +26,7 @@ namespace CribExplorerGui
     public partial class MainWindow : Window
     {
         private GameEngine gameEngine;
+        private string lastAction;
 
         private void DisplayCards(StackPanel panel, Hand hand)
         {
@@ -83,7 +84,10 @@ namespace CribExplorerGui
             buttonDeal.IsEnabled = gameEngine.GetCurrentPlayers()[0] != 0 && gameEngine.GetCurrentAction() == PlayerAction.Deal;
             buttonPass.IsEnabled = gameEngine.GetCurrentPlayers()[0] != 0 && gameEngine.GetCurrentAction() == PlayerAction.PlayOrPass;
 
-            textBoxMessage.Text = string.Format("Waiting for {0} to {1}", gameEngine.GetPlayerName(gameEngine.GetCurrentPlayers()[0]), gameEngine.GetCurrentAction().ToString());
+            textBoxMessage.AppendText(lastAction);
+            lastAction = string.Empty;
+            textBoxMessage.AppendText(string.Format("\nWaiting for {0} to {1}... ", gameEngine.GetPlayerName(gameEngine.GetCurrentPlayers()[0]), gameEngine.GetCurrentAction().ToString()));
+            textBoxMessage.ScrollToEnd();
         }
 
         // TODO: Move this to the AI module
@@ -92,7 +96,11 @@ namespace CribExplorerGui
             Hand hand = gameEngine.GetPlayerHand(0);
 
             if (hand.Cards.Count > 0)
-                return hand.Cards[0];
+            {
+                Card selectedCard = hand.Cards[0];
+                this.lastAction = string.Format("Computer added {0} to crib. ", selectedCard.ToString());
+                return selectedCard;
+            }
 
             throw new ApplicationException("Unexpected Error: The computer was asked to add a card to the crib but the computer doesn't have any more cards.");
         }
@@ -103,7 +111,8 @@ namespace CribExplorerGui
             foreach(Card card in gameEngine.GetPlayerHand(0).Cards)
             {
                 if (gameEngine.GetSumOfPlayedCards() + card.Value <= 31)
-                    return card;
+                this.lastAction = string.Format("Computer played {0}. ", card.ToString());
+                return card;
             }
 
             // No playable cards found so indicate that computer should pass

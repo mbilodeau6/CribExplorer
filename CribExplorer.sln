@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CribExplorerTests", "CribEx
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "TestConsole\TestConsole.csproj", "{5E29513D-FC07-4D0F-8865-A192D53BDA19}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CribExplorerGui", "CribExplorerGui\CribExplorerGui.csproj", "{65386E34-E85C-4DE6-96F8-90B5A1C7FE45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{5E29513D-FC07-4D0F-8865-A192D53BDA19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E29513D-FC07-4D0F-8865-A192D53BDA19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E29513D-FC07-4D0F-8865-A192D53BDA19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65386E34-E85C-4DE6-96F8-90B5A1C7FE45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65386E34-E85C-4DE6-96F8-90B5A1C7FE45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65386E34-E85C-4DE6-96F8-90B5A1C7FE45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65386E34-E85C-4DE6-96F8-90B5A1C7FE45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

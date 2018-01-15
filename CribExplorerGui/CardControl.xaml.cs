@@ -115,11 +115,23 @@ namespace CribExplorerGui
                     cardSuit.Source = new BitmapImage(new Uri(@"c:\src\CribExplorer\CribExplorerGui\Resources\Diamond.jpg"));
                     break;
             }
+
+            if (this.Hidden)
+            {
+                StackPanelCardFace.Visibility = System.Windows.Visibility.Hidden;
+                VisibleCard.Background = new ImageBrush(new BitmapImage(new Uri(@"c:\src\CribExplorer\CribExplorerGui\Resources\CardPattern.jpg")));
+            }
         }
 
         private void UserControl_MouseUp(object sender, MouseButtonEventArgs e)
         {
             reaction(this.Card);
+        }
+
+        public void ShowCard()
+        {
+            StackPanelCardFace.Visibility = Visibility.Visible;
+            VisibleCard.Background = null;
         }
     }
 }

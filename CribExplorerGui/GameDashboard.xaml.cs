@@ -28,7 +28,7 @@ namespace CribExplorerGui
         private GameEngine gameEngine;
         private string lastAction;
 
-        private void DisplayCards(StackPanel panel, Hand hand)
+        private void DisplayCards(StackPanel panel, Hand hand, bool hidden = false)
         {
             CardPlayedReaction desiredReaction = null;
 
@@ -39,9 +39,10 @@ namespace CribExplorerGui
 
             foreach(Card card in hand.Cards)
             {
-                panel.Children.Add(new CardControl(card, desiredReaction));
+                panel.Children.Add(new CardControl(card, desiredReaction, hidden));
             }
         }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -49,18 +50,22 @@ namespace CribExplorerGui
 
         public void UpdateDashboard()
         {
+            PlayerAction currentAction = gameEngine.GetCurrentAction();
+
+            bool showAllCards = ((currentAction == PlayerAction.ScoreHands) || (currentAction == PlayerAction.ScoreCrib) || (currentAction == PlayerAction.DeclareWinner));
+
             stackPanelComputerCards.Children.Clear();
-            DisplayCards(stackPanelComputerCards, gameEngine.GetPlayerHand(0));
+            DisplayCards(stackPanelComputerCards, gameEngine.GetPlayerHand(0), !showAllCards);
             stackPanelComputerPlayedCards.Children.Clear();
             DisplayCards(stackPanelComputerPlayedCards, gameEngine.GetPlayerDiscards(0));
             stackPanelPlayerCards.Children.Clear();
             DisplayCards(stackPanelPlayerCards, gameEngine.GetPlayerHand(1));
             stackPanelCribCards.Children.Clear();
-            DisplayCards(stackPanelCribCards, gameEngine.GetCrib());
+            DisplayCards(stackPanelCribCards, gameEngine.GetCrib(), !showAllCards);
             stackPanelPlayedCards.Children.Clear();
             DisplayCards(stackPanelPlayedCards, gameEngine.GetPlayerDiscards(1));
             stackPanelStarterCard.Children.Clear();
-            if (gameEngine.GetStarterCard() != null && gameEngine.GetCurrentAction() != PlayerAction.CreateCrib)
+            if (gameEngine.GetStarterCard() != null && currentAction != PlayerAction.CreateCrib)
                 stackPanelStarterCard.Children.Add(new CardControl(gameEngine.GetStarterCard(), null));
 
             textBoxDealer.Text = gameEngine.GetPlayerName(gameEngine.GetDealer());
@@ -72,12 +77,12 @@ namespace CribExplorerGui
             textBoxComputersScore.Text = gameEngine.GetPlayerScore(0).ToString();
             textBoxPlayersScore.Text = gameEngine.GetPlayerScore(1).ToString();
 
-            buttonDeal.IsEnabled = gameEngine.GetCurrentPlayers()[0] != 0 && gameEngine.GetCurrentAction() == PlayerAction.Deal;
-            buttonPass.IsEnabled = gameEngine.GetCurrentPlayers()[0] != 0 && gameEngine.GetCurrentAction() == PlayerAction.PlayOrPass;
+            buttonDeal.IsEnabled = gameEngine.GetCurrentPlayers()[0] != 0 && currentAction == PlayerAction.Deal;
+            buttonPass.IsEnabled = gameEngine.GetCurrentPlayers()[0] != 0 && currentAction == PlayerAction.PlayOrPass;
 
             textBoxMessage.AppendText(lastAction);
             lastAction = string.Empty;
-            textBoxMessage.AppendText(string.Format("\nWaiting for {0} to {1}... ", gameEngine.GetPlayerName(gameEngine.GetCurrentPlayers()[0]), gameEngine.GetCurrentAction().ToString()));
+            textBoxMessage.AppendText(string.Format("\nWaiting for {0} to {1}... ", gameEngine.GetPlayerName(gameEngine.GetCurrentPlayers()[0]), currentAction.ToString()));
             textBoxMessage.ScrollToEnd();
         }
 

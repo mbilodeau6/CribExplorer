@@ -281,7 +281,7 @@ namespace CribExplorerTests
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
 
             Assert.AreEqual(1, currentPlayers.Count, "Unexpected player count");
-            Assert.AreEqual(1, currentPlayers[0], "Unexpected current player");
+            Assert.AreEqual(0, currentPlayers[0], "Unexpected current player");
         }
 
         [TestMethod]
@@ -405,32 +405,20 @@ namespace CribExplorerTests
         }
 
         [TestMethod]
-        public void GameEngine_GetCurrentAction_ScoreCrib()
+        public void GameEngine_GetCurrentAction_ScoreCrib_StayUntilProvided()
         {
             // Set up state so that PlayerB is dealer and game at stage
             // where dealer needs to score their hand.
             GameState startingState = new GameState(testPlayerNames)
             {
-                Stage = PlayerAction.ScoreHands,
-                Dealer = 1,
+                Stage = PlayerAction.ScoreCrib,
             };
-
-            startingState.CurrentPlayers.Add(0);
 
             GameEngine gameEngine = new GameEngine(startingState);
 
-            gameEngine.IsProvidedScoreCorrectForHand(0, 10);
-
-            // Verify that when the dealer (PlayerB) scores their hand the
-            // game moves to the stage where the crib is calculated.
-            gameEngine.IsProvidedScoreCorrectForHand(1, 10);
+            gameEngine.GetCurrentAction();
 
             Assert.AreEqual(PlayerAction.ScoreCrib, gameEngine.GetCurrentAction(), "Unexpected action");
-
-            IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
-            
-            Assert.AreEqual(1, currentPlayers.Count, "Unexpected player count");
-            Assert.AreEqual(1, currentPlayers[0], "Unexpected current player");
         }
 
         [TestMethod]

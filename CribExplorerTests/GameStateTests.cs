@@ -154,7 +154,7 @@ namespace CribExplorerTests
             state.Crib.Cards.Add(null);
             state.Starter = new Card(CardSuit.Club, CardFace.Ace);
             state.SumOfPlayedCards = 10;
-            state.AllHandScoresProvided = true;
+            state.AllScoresProvided = true;
             state.Players[0].Hand.Cards.Add(null);
             state.Players[0].Discards.Cards.Add(null);
             state.Players[1].Hand.Cards.Add(null);
@@ -165,7 +165,7 @@ namespace CribExplorerTests
             Assert.AreEqual(0, state.Crib.Cards.Count, "Unexpected number of cards in crib");
             Assert.IsNull(state.Starter, "There should be no starter card");
             Assert.AreEqual(0, state.SumOfPlayedCards, "Unexpected SumOfPlayedCards");
-            Assert.IsFalse(state.AllHandScoresProvided, "Unexpected value for AllHandScoresProvided");
+            Assert.IsFalse(state.AllScoresProvided, "Unexpected value for AllHandScoresProvided");
             Assert.AreEqual(0, state.Players[0].Hand.Cards.Count, "Unexpected cards in player 0's hand");
             Assert.AreEqual(0, state.Players[0].Discards.Cards.Count, "Unexpected cards in player 0's discards");
             Assert.AreEqual(0, state.Players[1].Hand.Cards.Count, "Unexpected cards in player 1's hand");

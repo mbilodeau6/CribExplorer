@@ -39,7 +39,7 @@ namespace CribExplorer.Model
             Starter = null;
             Crib = new Hand();
             SumOfPlayedCards = 0;
-            AllHandScoresProvided = false;
+            AllScoresProvided = false;
 
             foreach(Player player in Players)
             {
@@ -93,7 +93,7 @@ namespace CribExplorer.Model
             set;
         }
 
-        public bool AllHandScoresProvided
+        public bool AllScoresProvided
         {
             get;
             set;

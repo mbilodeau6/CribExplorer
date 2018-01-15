@@ -67,15 +67,6 @@ namespace CribExplorerGui
 
             IList<int> currentPlayers = gameEngine.GetCurrentPlayers();
             
-            // TODO: Bug here... State should change as soon as crib is full (i.e. 
-            // shouldn't have to call GetCurrentAction().
-            if (currentPlayers.Count == 0)
-            {
-                gameEngine.GetCurrentAction();
-                UpdateDashboard();
-                return;
-            }
-
             textBoxPlayersTurn.Text = gameEngine.GetPlayerName(currentPlayers[0]);
             textBoxSumPlayed.Text = gameEngine.GetSumOfPlayedCards().ToString();
             textBoxComputersScore.Text = gameEngine.GetPlayerScore(0).ToString();
@@ -111,8 +102,10 @@ namespace CribExplorerGui
             foreach(Card card in gameEngine.GetPlayerHand(0).Cards)
             {
                 if (gameEngine.GetSumOfPlayedCards() + card.Value <= 31)
-                this.lastAction = string.Format("Computer played {0}. ", card.ToString());
-                return card;
+                {
+                    this.lastAction = string.Format("Computer played {0}. ", card.ToString());
+                    return card;
+                }
             }
 
             // No playable cards found so indicate that computer should pass
@@ -133,9 +126,33 @@ namespace CribExplorerGui
                     gameEngine.IsProvidedScoreCorrectForHand(currentPlayer, pointCalculator.GetAllPoints());
                     return;
                 case PlayerAction.ScoreCrib:
-                    // TODO: Provide correct score.
+                    // TODO: If human, allow them to provide score
                     pointCalculator = new PointCalculator(gameEngine.GetCrib(), gameEngine.GetStarterCard());
                     gameEngine.IsProvidedScoreCorrectForCrib(pointCalculator.GetAllPoints());
+
+                    IList<RoundScore> roundScores = new List<RoundScore>();
+
+                    for(int i = 0; i < gameEngine.GetNumberOfPlayers(); i++)
+                    {
+                        // TODO: Should be able to refactor so that I can use the hand/crib 
+                        // scores from earlier calculations
+                        PointCalculator handPointCalculator = new PointCalculator(gameEngine.GetPlayerHand(i), gameEngine.GetStarterCard());
+                        int handScore = handPointCalculator.GetAllPoints();
+
+                        int cribScore = 0;
+
+                        if (i == gameEngine.GetDealer())
+                        {
+                            PointCalculator cribPointCalculator = new PointCalculator(gameEngine.GetCrib(), gameEngine.GetStarterCard());
+                            cribScore = cribPointCalculator.GetAllPoints();
+                        }
+
+                        roundScores.Add(new RoundScore(gameEngine.GetPlayerName(i), handScore, cribScore, gameEngine.GetPlayerScore(i) - handScore - cribScore));    
+                    }
+
+                    EndOfRound endOfRoundForm = new EndOfRound(roundScores);
+                    endOfRoundForm.Owner = this;
+                    endOfRoundForm.ShowDialog();
                     return;
                 case PlayerAction.DeclareWinner:
                     MessageBox.Show(string.Format("Player {0} won!", gameEngine.GetWinningPlayer()));
@@ -198,20 +215,54 @@ namespace CribExplorerGui
 
         private void AddSelectedCardToCrib(Card selectedCard)
         {
-            gameEngine.AddToCrib(1, selectedCard);
+            try
+            {
+                gameEngine.AddToCrib(1, selectedCard);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format("Invalid selection: {0}", e.Message));
+                return;
+            }
+
             UpdateDashboard();
             this.Dispatcher.InvokeAsync<Task>(GameLoop);
         }
 
         private void PlaySelectedCard(Card selectedCard)
         {
-            gameEngine.PlayCard(1, selectedCard);
+            try
+            {
+                gameEngine.PlayCard(1, selectedCard);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format("Invalid selection: {0}", e.Message));
+                return;
+            }
+
             UpdateDashboard();
             this.Dispatcher.InvokeAsync<Task>(GameLoop);
         }
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
+            this.Dispatcher.InvokeAsync<Task>(GameLoop);
+        }
+
+        private void buttonPass_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                gameEngine.PlayerPass(1);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(string.Format("Invalid selection: {0}", exception.Message));
+                return;
+            }
+
+            UpdateDashboard();
             this.Dispatcher.InvokeAsync<Task>(GameLoop);
         }
 

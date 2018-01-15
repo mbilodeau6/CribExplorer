@@ -150,7 +150,10 @@ namespace CribExplorer
                     if (state.Crib.Cards.Count == GameEngine.RequiredHandCardCount)
                     {
                         state.CurrentPlayers.Clear();
-                        state.CurrentPlayers.Add(state.Dealer);
+
+                        int playerLeftOfDealer = GetNextPlayerIndex(state.Dealer);
+                        state.CurrentPlayers.Add(playerLeftOfDealer);
+
                         nextAction = PlayerAction.PlayOrPass;
                     }
                     break;
@@ -160,7 +163,7 @@ namespace CribExplorer
                         nextAction = PlayerAction.ScoreHands;
                         state.CurrentPlayers.Clear();
                         state.CurrentPlayers.Add(GetNextPlayerIndex(state.Dealer));
-                        state.AllHandScoresProvided = false;
+                        state.AllScoresProvided = false;
 
                         foreach (Player player in state.Players)
                         {
@@ -176,21 +179,25 @@ namespace CribExplorer
                         state.SumOfPlayedCards = 0;
                     break;
                 case PlayerAction.ScoreHands:
-                    if (state.AllHandScoresProvided)
+                    if (state.AllScoresProvided)
                     {
                         nextAction = PlayerAction.ScoreCrib;
+                        state.AllScoresProvided = false;
                         state.CurrentPlayers.Clear();
                         state.CurrentPlayers.Add(state.Dealer);
                     }
 
                     break;
                 case PlayerAction.ScoreCrib:
-                    state.Dealer = GetNextPlayerIndex(state.Dealer);
-                    state.CurrentPlayers.Clear();
-                    state.CurrentPlayers.Add(state.Dealer);
-                    nextAction = PlayerAction.Deal;
-                    state.ResetForNewRound();
-                    deck.Shuffle();
+                    if (state.AllScoresProvided)
+                    {
+                        state.Dealer = GetNextPlayerIndex(state.Dealer);
+                        state.CurrentPlayers.Clear();
+                        state.CurrentPlayers.Add(state.Dealer);
+                        nextAction = PlayerAction.Deal;
+                        state.ResetForNewRound();
+                        deck.Shuffle();
+                    }
                     break;
             }
 
@@ -255,7 +262,7 @@ namespace CribExplorer
             ValidatePlayerId(playerId);
 
             if (playerId == state.Dealer)
-                state.AllHandScoresProvided = true;
+                state.AllScoresProvided = true;
 
             // TODO: Add logic and tests to check score.
             state.Players[playerId].Score += score;
@@ -267,6 +274,7 @@ namespace CribExplorer
         {
             // TODO: Add logic and tests to check score.
             state.Players[state.Dealer].Score += score;
+            state.AllScoresProvided = true;
             return true;
         }
 

@@ -1,0 +1,45 @@
+﻿<Window x:Class="CribExplorerGui.EndOfRound"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Round Results" Width="400" Loaded="Window_Loaded" WindowStartupLocation="CenterOwner" Height="260">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        
+        <Label Name="LabelRoundMessage" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Content="End of round message." FontSize ="20" Foreground="DarkBlue" Margin="0,0,0,20"/>
+        <Label Name ="LabelPlayer0" Content="Player0" Grid.Row="1" Grid.Column="1" />
+        <Label Name ="LabelPlayer1" Content="Player1" Grid.Row="1" Grid.Column="2" />
+
+        <Label Content="Hand Score" Grid.Row="2" Grid.Column="0" />
+        <TextBox Name="textBoxPlayer0HandScore" Grid.Row="2" Grid.Column="1" Margin="5,5,5,5" />
+        <TextBox Name="textBoxPlayer1HandScore" Grid.Row="2" Grid.Column="2" Margin="5,5,5,5" />
+
+        <Label Content="Crib Score" Grid.Row="3" Grid.Column="0" />
+        <TextBox Name="textBoxPlayer0CribScore" Grid.Row="3" Grid.Column="1" Margin="5,5,5,5" />
+        <TextBox Name="textBoxPlayer1CribScore" Grid.Row="3" Grid.Column="2" Margin="5,5,5,5" />
+
+        <Label Content="Round Total" Grid.Row="4" Grid.Column="0" />
+        <TextBox Name="textBoxPlayer0RoundTotal" Grid.Row="4" Grid.Column="1" Margin="5,5,5,5" />
+        <TextBox Name="textBoxPlayer1RoundTotal" Grid.Row="4" Grid.Column="2" Margin="5,5,5,5" />
+        
+        <Label Content="Game Total" Grid.Row="5" Grid.Column="0" />
+        <TextBox Name="textBoxPlayer0GameTotal" Grid.Row="5" Grid.Column="1" Margin="5,5,5,5" />
+        <TextBox Name="textBoxPlayer1GameTotal" Grid.Row="5" Grid.Column="2" Margin="5,5,5,5" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="2">
+            <Button Name="buttonOk" Content="OK" Margin="5,5,5,5" Click="buttonOk_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

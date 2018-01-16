@@ -13,7 +13,7 @@ namespace CribExplorer
         private GameState state;
         private IDeck deck;
 
-        public const int WinningScore = 50; // TODO: Revert to real winning score of 121;
+        public const int WinningScore = 121;
         public const int RequiredHandCardCount = 4;
 
         public GameEngine(IDeck deck, IList<string> playerNames)

@@ -9,28 +9,13 @@ namespace CribExplorer
 {
     public class PointCalculator
     {
-        private IList<Card> allCards;
+        protected IList<Card> allCards;
         private IDictionary<CardFace, int> faceCounts;
-        private IList<Card> cardsInHand;
-        private Card starterCard;
+        protected IList<Card> cardsInHand;
+        protected Card starterCard;
 
-        public PointCalculator(Hand hand, Card starter)
+        protected void CalcFaceCounts()
         {
-            if (hand == null)
-                throw new ArgumentNullException("hand");
-
-            if (starter == null)
-                throw new ArgumentNullException("starter");
-
-            if (hand.Cards == null || hand.Cards.Count != 4)
-                throw new ArgumentException("Hands must have 4 cards to be scored.");
-
-            cardsInHand = hand.Cards;
-            starterCard = starter;
-
-            allCards = new List<Card>(hand.Cards);
-            allCards.Add(starter);
-
             faceCounts = new Dictionary<CardFace, int>();
 
             foreach (Card card in allCards)
@@ -41,6 +26,7 @@ namespace CribExplorer
                     faceCounts.Add(card.Face, 1);
             }
         }
+
 
         public int GetStraightPoints()
         {

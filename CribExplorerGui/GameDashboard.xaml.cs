@@ -134,12 +134,12 @@ namespace CribExplorerGui
             {
                 case PlayerAction.ScoreHands:
                     // TODO: If human, allow them to provide score
-                    pointCalculator = new PointCalculator(gameEngine.GetPlayerHand(currentPlayer), gameEngine.GetStarterCard());
+                    pointCalculator = new HandPointCalculator(gameEngine.GetPlayerHand(currentPlayer), gameEngine.GetStarterCard());
                     gameEngine.IsProvidedScoreCorrectForHand(currentPlayer, pointCalculator.GetAllPoints());
                     return;
                 case PlayerAction.ScoreCrib:
                     // TODO: If human, allow them to provide score
-                    pointCalculator = new PointCalculator(gameEngine.GetCrib(), gameEngine.GetStarterCard());
+                    pointCalculator = new HandPointCalculator(gameEngine.GetCrib(), gameEngine.GetStarterCard());
                     gameEngine.IsProvidedScoreCorrectForCrib(pointCalculator.GetAllPoints());
 
                     IList<RoundScore> roundScores = new List<RoundScore>();
@@ -148,14 +148,14 @@ namespace CribExplorerGui
                     {
                         // TODO: Should be able to refactor so that I can use the hand/crib 
                         // scores from earlier calculations
-                        PointCalculator handPointCalculator = new PointCalculator(gameEngine.GetPlayerHand(i), gameEngine.GetStarterCard());
+                        HandPointCalculator handPointCalculator = new HandPointCalculator(gameEngine.GetPlayerHand(i), gameEngine.GetStarterCard());
                         int handScore = handPointCalculator.GetAllPoints();
 
                         int cribScore = 0;
 
                         if (i == gameEngine.GetDealer())
                         {
-                            PointCalculator cribPointCalculator = new PointCalculator(gameEngine.GetCrib(), gameEngine.GetStarterCard());
+                            HandPointCalculator cribPointCalculator = new HandPointCalculator(gameEngine.GetCrib(), gameEngine.GetStarterCard());
                             cribScore = cribPointCalculator.GetAllPoints();
                         }
 

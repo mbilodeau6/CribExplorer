@@ -55,8 +55,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="GameEngine.cs" />
+    <Compile Include="HandPointCalculator.cs" />
     <Compile Include="Model\GameState.cs" />
     <Compile Include="Model\Player.cs" />
+    <Compile Include="PegPointCalculator.cs" />
+    <Compile Include="PegPoints.cs" />
+    <Compile Include="PegPointSource.cs" />
     <Compile Include="PlayerAction.cs" />
     <Compile Include="PointCalculator.cs" />
     <Page Include="MainWindow.xaml">

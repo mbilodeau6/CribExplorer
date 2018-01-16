@@ -162,7 +162,7 @@ namespace TestConsole
                     ShowCard(gameEngine.GetStarterCard());
                     Console.WriteLine();
 
-                    PointCalculator handPoints = new PointCalculator(playerHand, gameEngine.GetStarterCard());
+                    HandPointCalculator handPoints = new HandPointCalculator(playerHand, gameEngine.GetStarterCard());
                     score = handPoints.GetAllPoints();
                     Console.WriteLine("Hand Score: {0}", score);
                     gameEngine.IsProvidedScoreCorrectForHand(currentPlayerIndex, score);
@@ -179,7 +179,7 @@ namespace TestConsole
                     ShowCard(gameEngine.GetStarterCard());
                     Console.WriteLine();
 
-                    PointCalculator cribPoints = new PointCalculator(playerHand, gameEngine.GetStarterCard());
+                    HandPointCalculator cribPoints = new HandPointCalculator(playerHand, gameEngine.GetStarterCard());
 
                     score = cribPoints.GetAllPoints();
                     Console.WriteLine("Crib Score: {0}", score);

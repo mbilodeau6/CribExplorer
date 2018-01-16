@@ -228,7 +228,7 @@ namespace CribExplorer
             state.CurrentPlayers.Add(GetNextPlayerIndex(currentPlayer));
         }
 
-        public void PlayCard(int playerId, Card card)
+        public PegPoints PlayCard(int playerId, Card card)
         {
             ValidatePlayerId(playerId);
 
@@ -246,7 +246,23 @@ namespace CribExplorer
 
             state.Players[playerId].Discard(card);
             state.SumOfPlayedCards += card.Value;
-            MoveToNextPlayer();    
+
+            PegPoints pegPoints = new PegPoints(playerId);
+
+            if (state.SumOfPlayedCards == 15)
+                pegPoints.Add(PegPointType.Fifeteen);
+
+            if (state.SumOfPlayedCards == 31)
+                pegPoints.Add(PegPointType.ThirtyOne);
+
+            if (state.SumOfPlayedCards < 31 && !state.CardsPlayable())
+                pegPoints.Add(PegPointType.LastCardInRound);
+
+            state.Players[playerId].Score += pegPoints.GetTotalPoints();
+
+            MoveToNextPlayer();
+
+            return pegPoints;
         }
 
         public void PlayerPass(int playerId)

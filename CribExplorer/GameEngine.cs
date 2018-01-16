@@ -13,7 +13,7 @@ namespace CribExplorer
         private GameState state;
         private IDeck deck;
 
-        public const int WinningScore = 121;
+        public const int WinningScore = 50; // TODO: Revert to real winning score of 121;
         public const int RequiredHandCardCount = 4;
 
         public GameEngine(IDeck deck, IList<string> playerNames)
@@ -31,7 +31,7 @@ namespace CribExplorer
             this.deck = deck;
             this.state = new GameState(playerNames);
 
-            StartNew();
+            StartMatch();
         }
 
         public GameEngine(GameState gameState)
@@ -43,7 +43,7 @@ namespace CribExplorer
             this.deck = new Deck();
         }
 
-        private void StartNew()
+        private void StartMatch()
         {
             deck.Shuffle();
             state.CurrentPlayers.Clear();
@@ -65,6 +65,14 @@ namespace CribExplorer
             }
 
             state.Dealer = state.CurrentPlayers[0];
+        }
+
+        public void StartNextGame()
+        {
+            if (state.Stage != PlayerAction.DeclareWinner)
+                throw new ApplicationException("Invalid state to start the next game.");
+
+            state.ResetForNextGame(GetWinningPlayer());
         }
 
         public int GetMaxTotalHandCount()

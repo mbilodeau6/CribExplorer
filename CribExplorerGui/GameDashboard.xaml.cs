@@ -27,6 +27,7 @@ namespace CribExplorerGui
     {
         private GameEngine gameEngine;
         private string lastAction;
+        private string playerName;
 
         private void DisplayCards(StackPanel panel, Hand hand, bool hidden = false)
         {
@@ -45,6 +46,12 @@ namespace CribExplorerGui
 
         public MainWindow()
         {
+            GetPlayerName getPlayerNameForm = new GetPlayerName();
+            if (!(getPlayerNameForm.ShowDialog() ?? false))
+                this.Close();
+
+            playerName = getPlayerNameForm.GetName();
+
             InitializeComponent();
         }
 
@@ -160,7 +167,18 @@ namespace CribExplorerGui
                     endOfRoundForm.ShowDialog();
                     return;
                 case PlayerAction.DeclareWinner:
-                    MessageBox.Show(string.Format("Player {0} won!", gameEngine.GetWinningPlayer()));
+                    string message;
+
+                    if (gameEngine.GetWinningPlayer() == 0)
+                        message = "Computer won. Better luck next time.";
+                    else
+                        message = string.Format("Congratulations {0}! You won!", gameEngine.GetPlayerName(gameEngine.GetWinningPlayer()));
+
+                    DeclareWinner declareWinnerForm = new DeclareWinner(message);
+                    declareWinnerForm.Owner = this;
+                    declareWinnerForm.ShowDialog();
+
+                    gameEngine.StartNextGame();
                     return;
             }
 
@@ -203,7 +221,7 @@ namespace CribExplorerGui
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            this.gameEngine = new GameEngine(new Deck(), new List<string>() {"Computer", "Human"});
+            this.gameEngine = new GameEngine(new Deck(), new List<string>() {"Computer", playerName});
             UpdateDashboard();
         }
 

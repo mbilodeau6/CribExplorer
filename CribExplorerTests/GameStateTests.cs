@@ -171,5 +171,40 @@ namespace CribExplorerTests
             Assert.AreEqual(0, state.Players[1].Hand.Cards.Count, "Unexpected cards in player 1's hand");
             Assert.AreEqual(0, state.Players[1].Discards.Cards.Count, "Unexpected cards in player 1's discards");
         }
+
+        [TestMethod]
+        public void GameState_ResetForNextGame()
+        {
+            GameState state = new GameState(new List<string>() { "A", "B" });
+
+            state.Crib.Cards.Add(null);
+            state.Starter = new Card(CardSuit.Club, CardFace.Ace);
+            state.SumOfPlayedCards = 10;
+            state.AllScoresProvided = true;
+            state.Players[0].Hand.Cards.Add(null);
+            state.Players[0].Discards.Cards.Add(null);
+            state.Players[1].Hand.Cards.Add(null);
+            state.Players[1].Discards.Cards.Add(null);
+            state.Stage = PlayerAction.DeclareWinner;
+            state.Players[0].Score = 10;
+            state.Players[1].Score = 8;
+            state.Dealer = 0;
+
+            state.ResetForNextGame(1);
+
+            Assert.AreEqual(0, state.Crib.Cards.Count, "Unexpected number of cards in crib");
+            Assert.IsNull(state.Starter, "There should be no starter card");
+            Assert.AreEqual(0, state.SumOfPlayedCards, "Unexpected SumOfPlayedCards");
+            Assert.IsFalse(state.AllScoresProvided, "Unexpected value for AllHandScoresProvided");
+            Assert.AreEqual(0, state.Players[0].Hand.Cards.Count, "Unexpected cards in player 0's hand");
+            Assert.AreEqual(0, state.Players[0].Discards.Cards.Count, "Unexpected cards in player 0's discards");
+            Assert.AreEqual(0, state.Players[1].Hand.Cards.Count, "Unexpected cards in player 1's hand");
+            Assert.AreEqual(0, state.Players[1].Discards.Cards.Count, "Unexpected cards in player 1's discards");
+            Assert.AreEqual(0, state.Players[0].Score, "Unexpected score for player 0.");
+            Assert.AreEqual(0, state.Players[1].Score, "Unexpected score for player 1.");
+            Assert.AreEqual(1, state.Dealer, "Unexpected dealer");
+            Assert.AreEqual(PlayerAction.Deal, state.Stage, "Unexpected stage");
+        }
+
     }
 }

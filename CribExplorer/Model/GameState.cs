@@ -48,6 +48,17 @@ namespace CribExplorer.Model
             }
         }
 
+        public void ResetForNextGame(int newDealer)
+        {
+            ResetForNewRound();
+
+            foreach (Player player in Players)
+                player.Score = 0;
+
+            Dealer = newDealer;
+            Stage = PlayerAction.Deal;
+        }
+
         // TODO: Should create a type for CurrentPlayers so that programmers
         // don't need to know how to use Lists and so that we can change the 
         // type without having to change code throughout the program.

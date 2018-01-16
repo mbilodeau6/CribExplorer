@@ -15,7 +15,7 @@ namespace CribExplorer
             if (hand == null)
                 throw new ArgumentNullException("hand");
 
-            if (hand.Cards == null)
+            if (hand.Cards == null || hand.Cards.Count == 0)
                 throw new ArgumentException("No cards found in hand.");
 
             cardsInHand = hand.Cards;

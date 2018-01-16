@@ -64,6 +64,8 @@
     <Compile Include="DeckTests.cs" />
     <Compile Include="GameEngineTests.cs" />
     <Compile Include="GameStateTests.cs" />
+    <Compile Include="PegPointCalculatorTests.cs" />
+    <Compile Include="PegPointTests.cs" />
     <Compile Include="PlayerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HandPointCalculatorTests.cs" />

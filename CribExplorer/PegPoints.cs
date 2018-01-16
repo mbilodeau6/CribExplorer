@@ -27,7 +27,7 @@ namespace CribExplorer
             pegPointSources.Add(new PegPointSource(pointSource));
         }
 
-        public IEnumerable<PegPointSource> Enumerator()
+        public IEnumerable<PegPointSource> Sources()
         {
             foreach (PegPointSource source in pegPointSources)
                 yield return source;
